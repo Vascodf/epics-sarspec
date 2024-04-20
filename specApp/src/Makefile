@@ -16,7 +16,7 @@ DBD += spec.dbd
 LIBRARY_IOC += specSupport
 
 # Compile and add code to the support library
-specSupport_SRCS += testAsynPortDriver.cpp
+specSupport_SRCS += specAsynPortDriver.cpp
 
 specSupport_LIBS += $(EPICS_BASE_IOC_LIBS)
 specSupport_LIBS += asyn
