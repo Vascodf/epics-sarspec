@@ -12,15 +12,10 @@
 #ifndef SARSPEC_DEVICE_H_
 #define SARSPEC_DEVICE_H_
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <libftdi1/ftdi.h>
-#include <string>
-#include <sstream>
-#include <cmath>
 #include <vector>
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 #include <time.h>
@@ -51,7 +46,7 @@ namespace sarspec_usb {
 
             bool connect(int vendor, int product);
             int disconnect();
-            int led(bool value);
+            int setLed(bool value);
 
             char* readEEPROMPage(int page);
             double* getCurrentEEPROMDarkGain();
@@ -62,32 +57,24 @@ namespace sarspec_usb {
             bool setIntegrationTime(int intTime);
             bool setTimeout(int timeOut);
 
-            std::vector<double> YData(bool extTrigger, int delay);
-            std::vector<double> XData(double coeffs[4]);
+            std::vector<double> getYData(bool extTrigger, int delay);
+            std::vector<double> getXData(double coeffs[4]);
 
         private:
 
-            struct ftdi_context *ftdi;
+            struct ftdi_context *ftdi_dev;
             struct ftdi_transfer_control* tc;
-
-            int status;
-
-            const int P = 3648;  //Sony 2048    Toshiba 3648
-            const int L = 3694;  //Sony 2087    Toshiba 3694
 
             uint32_t offsetTimeout = 100;
             uint32_t calcTimeOut = 0;
             uint32_t tExtDelay = 0;
             uint32_t delay_old = 0;
 
-
             std::vector<double> yData;
             std::vector<double> xData;
 
-
             double darkGain[2];
             double gain0;
-            const int DA_LEVELS = 65536;
     };
 }
 
