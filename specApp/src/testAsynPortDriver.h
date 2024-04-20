@@ -13,6 +13,7 @@
  */
 
 #include "asynPortDriver.h"
+#include "sarspec-device.h"
 
 #define NUM_VERT_SELECTIONS 4
 
@@ -90,4 +91,5 @@ private:
     void setVertGain();
     void setVoltsPerDiv();
     void setTimePerDiv();
+    sarspec_usb::SarspecResDevice specDev;
 };

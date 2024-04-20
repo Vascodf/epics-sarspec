@@ -1,3 +1,7 @@
+# EPICS build
+bin/
+db/
+dbd/
 # Prerequisites
 *.d
 
