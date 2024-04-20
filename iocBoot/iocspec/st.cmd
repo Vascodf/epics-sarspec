@@ -14,8 +14,7 @@ spec_registerRecordDeviceDriver pdbbase
 testAsynPortDriverConfigure("testAPD", 1000)
 
 ## Load record instances
-#dbLoadRecords("db/xxx.db","user=vascodf")
-
+#dbLoadRecords("db/xxx.db","user=bernardo")
 dbLoadRecords("db/testAsynPortDriver.db","P=ISTTOK:,R=scope1:,PORT=testAPD,ADDR=0,TIMEOUT=1,NPOINTS=1000")
 dbLoadRecords("${ASYN}/db/asynRecord.db","P=ISTTOK:,R=asyn1,PORT=testAPD,ADDR=0,OMAX=80,IMAX=80")
 
@@ -26,4 +25,4 @@ cd "${TOP}/iocBoot/${IOC}"
 iocInit
 
 ## Start any sequence programs
-#seq sncxxx,"user=vascodf"
+#seq sncxxx,"user=bernardo"

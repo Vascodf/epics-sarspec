@@ -29,6 +29,7 @@
 
 #include "testAsynPortDriver.h"
 #include <epicsExport.h>
+#include "sarspec-device.h"
 
 #define FREQUENCY 1000       /* Frequency in Hz */
 #define AMPLITUDE 1.0        /* Plus and minus peaks of sin wave */
@@ -59,9 +60,16 @@ testAsynPortDriver::testAsynPortDriver(const char *portName, int maxPoints)
     asynStatus status;
     int i;
     const char *functionName = "testAsynPortDriver";
+    sarspec_usb::SarspecResDevice specDev;
+    int  * connect;
+    int integrationTime = 3;
+    bool temp = false;
 
     /* Make sure maxPoints is positive */
     if (maxPoints < 1) maxPoints = 100;
+
+    //connect = Connect();
+//    temp = ChangeIntegrationTime(integrationTime);
 
     /* Allocate the waveform array */
     pData_ = (epicsFloat64 *)calloc(maxPoints, sizeof(epicsFloat64));

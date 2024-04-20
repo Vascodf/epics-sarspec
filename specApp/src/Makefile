@@ -20,6 +20,7 @@ specSupport_SRCS += testAsynPortDriver.cpp
 
 specSupport_LIBS += $(EPICS_BASE_IOC_LIBS)
 specSupport_LIBS += asyn
+specSupport_LIBS += sarspec
 
 # Auto-generate a header file containing a version string.
 # Version comes from the VCS if available, else date+time.
