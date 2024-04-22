@@ -39,7 +39,7 @@ namespace sarspec_usb {
 
     SarspecResDevice::~SarspecResDevice()
     {
-        disconnect();
+        //disconnect();
     }
 
     bool SarspecResDevice::connect(int vendor, int product)
