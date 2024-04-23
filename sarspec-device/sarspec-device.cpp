@@ -122,6 +122,7 @@ namespace sarspec_usb {
 
     std::vector<double> SarspecResDevice::getXData(double coeffs[4])
     {
+        xData.clear();
         for (int i = 0; i < P; i++)
         {
             xData.push_back(coeffs[0] + coeffs[1] * i + coeffs[2] * pow(double(i), 2) + coeffs[3] * pow(double(i), 3));
@@ -136,6 +137,7 @@ namespace sarspec_usb {
         unsigned char bufStartScanExt[] = { 0x10, 0, 0, 0, 1 };
         unsigned char incomingBuf[8192];
         uint32_t bytesRead;
+        yData.clear();
 
         timespec startTime, endTime;
 

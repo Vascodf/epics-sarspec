@@ -30,11 +30,11 @@ namespace sarspec_usb_test {
         double coeffs[4] = {0, 1, 0, 0};
 
         bool a = teste.setDeviceGain(1);
-        bool b = teste.setIntegrationTime(4);
+        bool b = teste.setIntegrationTime(10);
 
         timespec startTime, endTime;
         x = teste.getXData(coeffs);
-        y = teste.getYData(false, 0);
+        y = teste.getYData(true, 0);
 
         //for (int i = 0; i<256; i++) {
         //
