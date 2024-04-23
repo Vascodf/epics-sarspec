@@ -15,7 +15,7 @@ specAsynPortDriverConfigure("testAPD", 1000)
 
 ## Load record instances
 #dbLoadRecords("db/xxx.db","user=bernardo")
-dbLoadRecords("db/specAsynPortDriver.db","P=ISTTOK:,R=scope1:,PORT=testAPD,ADDR=0,TIMEOUT=1,NPOINTS=1000")
+dbLoadRecords("db/specAsynPortDriver.db","P=ISTTOK:,R=sarspec:,PORT=testAPD,ADDR=0,TIMEOUT=1,NPOINTS=3648")
 dbLoadRecords("${ASYN}/db/asynRecord.db","P=ISTTOK:,R=asyn1,PORT=testAPD,ADDR=0,OMAX=80,IMAX=80")
 
 #asynSetTraceMask("testAPD",0,0xff)

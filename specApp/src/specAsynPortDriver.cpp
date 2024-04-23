@@ -36,17 +36,16 @@
 #define MIN_UPDATE_TIME 0.02 /* Minimum update time, to prevent CPU saturation */
 
 #define MAX_ENUM_STRING_SIZE 20
-static int allVoltsPerDivSelections[NUM_VERT_SELECTIONS]={1,2,5,10};
 
 static const char *driverName="specAsynPortDriver";
-void simTask(void *drvPvt);
+void acquireTask(void *drvPvt);
 
 
 /** Constructor for the specAsynPortDriver class.
   * Calls constructor for the asynPortDriver base class.
   * \param[in] portName The name of the asyn port driver to be created.
   * \param[in] maxPoints The maximum  number of points in the volt and time arrays */
-specAsynPortDriver::specAsynPortDriver(const char *portName, int maxPoints)
+specAsynPortDriver::specAsynPortDriver(const char *portName, int maxPoints) //MAX POINTS == 3648
    : asynPortDriver(portName,
                     1, /* maxAddr */
                     asynInt32Mask | asynFloat64Mask | asynFloat64ArrayMask | asynEnumMask | asynDrvUserMask, /* Interface mask */
@@ -57,13 +56,13 @@ specAsynPortDriver::specAsynPortDriver(const char *portName, int maxPoints)
                     0) /* Default stack size*/
 {
     asynStatus status;
-    int i;
+
     const char *functionName = "specAsynPortDriver";
-    int integrationTime = 3;
-    bool temp = false;
+    //int integrationTime = 3;
+    //bool temp = false;
 
     /* Make sure maxPoints is positive */
-    if (maxPoints < 1) maxPoints = 100;
+    if (maxPoints < 1) maxPoints = 3648;
 
     if(!specDev.connect(0x0403, 0x6010)) {
                         printf("Failed to connect device\n");
@@ -71,61 +70,60 @@ specAsynPortDriver::specAsynPortDriver(const char *portName, int maxPoints)
     }
 //    temp = ChangeIntegrationTime(integrationTime);
 
-    /* Allocate the waveform array */
-    pData_ = (epicsFloat64 *)calloc(maxPoints, sizeof(epicsFloat64));
+    /* Allocate the YData array */
+    pYData_ = (epicsFloat64 *)calloc(3648, sizeof(epicsFloat64));
 
-    /* Allocate the time base array */
-    pTimeBase_ = (epicsFloat64 *)calloc(maxPoints, sizeof(epicsFloat64));
-    /* Set the time base array */
-    for (i=0; i<maxPoints; i++) pTimeBase_[i] = (double)i / (maxPoints-1) * NUM_DIVISIONS;
-
+    /* Allocate the wavelength array */
+    pXData_ = (epicsFloat64 *)calloc(3648, sizeof(epicsFloat64));
+    
     eventId_ = epicsEventCreate(epicsEventEmpty);
     createParam(P_RunString,                asynParamInt32,         &P_Run);
     createParam(P_MaxPointsString,          asynParamInt32,         &P_MaxPoints);
-    createParam(P_TimePerDivString,         asynParamFloat64,       &P_TimePerDiv);
-    createParam(P_TimePerDivSelectString,   asynParamInt32,         &P_TimePerDivSelect);
-    createParam(P_VertGainString,           asynParamFloat64,       &P_VertGain);
-    createParam(P_VertGainSelectString,     asynParamInt32,         &P_VertGainSelect);
-    createParam(P_VoltsPerDivString,        asynParamFloat64,       &P_VoltsPerDiv);
-    createParam(P_VoltsPerDivSelectString,  asynParamInt32,         &P_VoltsPerDivSelect);
-    createParam(P_VoltOffsetString,         asynParamFloat64,       &P_VoltOffset);
-    createParam(P_TriggerDelayString,       asynParamFloat64,       &P_TriggerDelay);
-    createParam(P_NoiseAmplitudeString,     asynParamFloat64,       &P_NoiseAmplitude);
-    createParam(P_UpdateTimeString,         asynParamFloat64,       &P_UpdateTime);
-    createParam(P_WaveformString,           asynParamFloat64Array,  &P_Waveform);
-    createParam(P_TimeBaseString,           asynParamFloat64Array,  &P_TimeBase);
-    createParam(P_MinValueString,           asynParamFloat64,       &P_MinValue);
-    createParam(P_MaxValueString,           asynParamFloat64,       &P_MaxValue);
-    createParam(P_MeanValueString,          asynParamFloat64,       &P_MeanValue);
 
-    for (i=0; i<NUM_VERT_SELECTIONS; i++) {
-        // Compute vertical volts per division in mV
-        voltsPerDivValues_[i] = 0;
-        voltsPerDivStrings_[i] = (char *)calloc(MAX_ENUM_STRING_SIZE, sizeof(char));
-        voltsPerDivSeverities_[i] = 0;
-    }
+    createParam(P_TriggerDelayString,       asynParamInt32,         &P_TriggerDelay);
+
+    createParam(P_UpdateTimeString,         asynParamFloat64,       &P_UpdateTime);
+    
+    
+    createParam(P_YDataString,              asynParamFloat64Array,  &P_YData);
+    createParam(P_XDataString,              asynParamFloat64Array,  &P_XData);
 
     /* Set the initial values of some parameters */
-    setIntegerParam(P_MaxPoints,         maxPoints);
+    setIntegerParam(P_MaxPoints,         3648);
     setIntegerParam(P_Run,               0);
-    setIntegerParam(P_VertGainSelect,    10);
-    setVertGain();
-    setDoubleParam (P_VoltsPerDiv,       1.0);
-    setDoubleParam (P_VoltOffset,        0.0);
-    setDoubleParam (P_TriggerDelay,      0.0);
-    setDoubleParam (P_TimePerDiv,        0.001);
     setDoubleParam (P_UpdateTime,        0.5);
-    setDoubleParam (P_NoiseAmplitude,    0.1);
-    setDoubleParam (P_MinValue,          0.0);
-    setDoubleParam (P_MaxValue,          0.0);
-    setDoubleParam (P_MeanValue,         0.0);
+    /*
+    
+    Minhas coisas
+    
+    */
 
+    //createParam(P_RunString,              asynParamInt32,         &P_Run); repetido
+    createParam(P_LedString,                asynParamInt32,           &P_Led);
+    createParam(P_GainString,               asynParamInt32,           &P_Gain);
+    createParam(P_IntTimeString,            asynParamInt32,           &P_IntTime);
+    createParam(P_ExtTriggerString,         asynParamInt32,           &P_ExtTrigger);
+    createParam(P_Coeff0String,             asynParamFloat64,         &P_Coeff0);
+    createParam(P_Coeff1String,             asynParamFloat64,         &P_Coeff1);
+    createParam(P_Coeff2String,             asynParamFloat64,         &P_Coeff2);
+    createParam(P_Coeff3String,             asynParamFloat64,         &P_Coeff3);
+
+    //setIntegerParam(P_Run, 0); repetido
+    setIntegerParam(P_Led, 0);
+    setIntegerParam(P_Gain, 1);
+    setIntegerParam(P_IntTime, 10);
+    setIntegerParam(P_ExtTrigger, 0);
+    setIntegerParam(P_TriggerDelay, 0);
+    setDoubleParam(P_Coeff0, 0.0);    
+    setDoubleParam(P_Coeff1, 1.0);
+    setDoubleParam(P_Coeff2, 0.0);
+    setDoubleParam(P_Coeff3, 0.0);
 
     /* Create the thread that computes the waveforms in the background */
     status = (asynStatus)(epicsThreadCreate("specAsynPortDriverTask",
                           epicsThreadPriorityMedium,
                           epicsThreadGetStackSize(epicsThreadStackMedium),
-                          (EPICSTHREADFUNC)::simTask,
+                          (EPICSTHREADFUNC)::acquireTask,
                           this) == NULL);
     if (status) {
         printf("%s:%s: epicsThreadCreate failure\n", driverName, functionName);
@@ -135,11 +133,11 @@ specAsynPortDriver::specAsynPortDriver(const char *portName, int maxPoints)
 
 
 
-void simTask(void *drvPvt)
+void acquireTask(void *drvPvt)
 {
     specAsynPortDriver *pPvt = (specAsynPortDriver *)drvPvt;
 
-    pPvt->simTask();
+    pPvt->acquireTask();
 }
 
 /** Simulation task that runs as a separate thread.  When the P_Run parameter is set to 1
@@ -147,22 +145,23 @@ void simTask(void *drvPvt)
   * noise, and displays it on
   * a simulated scope.  It computes waveforms for the X (time) and Y (volt) axes, and computes
   * statistics about the waveform. */
-void specAsynPortDriver::simTask(void)
+void specAsynPortDriver::acquireTask(void)
 {
     /* This thread computes the waveform and does callbacks with it */
 
-    double timePerDiv, voltsPerDiv, voltOffset, triggerDelay, noiseAmplitude;
-    double updateTime, minValue, maxValue, meanValue;
-    double time, timeStep;
-    double noise, yScale;
-    epicsInt32 run, i, maxPoints;
-    double pi=4.0*atan(1.0);
-
+    epicsInt32 run, maxPoints, ext, delay;
+    epicsFloat64 updateTime;
+    
+    getIntegerParam(P_MaxPoints, &maxPoints);
+    getIntegerParam(P_ExtTrigger, &ext);
+    getIntegerParam(P_TriggerDelay, &delay);
+    getIntegerParam(P_Run, &run);
+    getDoubleParam(P_UpdateTime, &updateTime);
+    
     lock();
     /* Loop forever */
     while (1) {
-        getDoubleParam(P_UpdateTime, &updateTime);
-        getIntegerParam(P_Run, &run);
+
         // Release the lock while we wait for a command to start or wait for updateTime
         unlock();
         if (run) epicsEventWaitWithTimeout(eventId_, updateTime);
@@ -172,36 +171,15 @@ void specAsynPortDriver::simTask(void)
         /* run could have changed while we were waiting */
         getIntegerParam(P_Run, &run);
         if (!run) continue;
-        getIntegerParam(P_MaxPoints,        &maxPoints);
-        getDoubleParam (P_TimePerDiv,       &timePerDiv);
-        getDoubleParam (P_VoltsPerDiv,      &voltsPerDiv);
-        getDoubleParam (P_VoltOffset,       &voltOffset);
-        getDoubleParam (P_TriggerDelay,     &triggerDelay);
-        getDoubleParam (P_NoiseAmplitude,   &noiseAmplitude);
-        time = triggerDelay;
-        timeStep = timePerDiv * NUM_DIVISIONS / maxPoints;
-        minValue = 1e6;
-        maxValue = -1e6;
-        meanValue = 0.;
+        
+        std::vector<double> temp = specDev.getYData(ext, delay);
+        for (int i=0; i<3648; i++) {pYData_[i] = temp[i]; /*printf("%u   %g\n", i, temp[i]);*/}
 
-        yScale = 1.0 / voltsPerDiv;
-        for (i=0; i<maxPoints; i++) {
-            noise = noiseAmplitude * (rand()/(double)RAND_MAX - 0.5);
-            pData_[i] = AMPLITUDE * (sin(time*FREQUENCY*2*pi)) + noise;
-            /* Compute statistics before doing the yOffset and yScale */
-            if (pData_[i] < minValue) minValue = pData_[i];
-            if (pData_[i] > maxValue) maxValue = pData_[i];
-            meanValue += pData_[i];
-            pData_[i] = NUM_DIVISIONS/2 + yScale * (voltOffset + pData_[i]);
-            time += timeStep;
-        }
+        setIntegerParam(P_Run, 0);
+
         updateTimeStamp();
-        meanValue = meanValue/maxPoints;
-        setDoubleParam(P_MinValue, minValue);
-        setDoubleParam(P_MaxValue, maxValue);
-        setDoubleParam(P_MeanValue, meanValue);
         callParamCallbacks();
-        doCallbacksFloat64Array(pData_, maxPoints, P_Waveform, 0);
+        doCallbacksFloat64Array(pYData_, 3648, P_YData, 0);
     }
 }
 
@@ -227,14 +205,14 @@ asynStatus specAsynPortDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
         /* If run was set then wake up the simulation task */
         if (value) epicsEventSignal(eventId_);
     }
-    else if (function == P_VertGainSelect) {
-        setVertGain();
+    else if (function == P_Led) {
+        setLed();
     }
-    else if (function == P_VoltsPerDivSelect) {
-        setVoltsPerDiv();
+    else if (function == P_Gain) {
+        setGain();
     }
-    else if (function == P_TimePerDivSelect) {
-        setTimePerDiv();
+    else if (function == P_IntTime) {
+        setIntTime();
     }
     else {
         /* All other parameters just get set in parameter list, no need to
@@ -286,7 +264,11 @@ asynStatus specAsynPortDriver::writeFloat64(asynUser *pasynUser, epicsFloat64 va
         /* If the update time has changed and we are running then wake up the simulation task */
         getIntegerParam(P_Run, &run);
         if (run) epicsEventSignal(eventId_);
-    } else {
+    }
+    else if (function == P_Coeff0 || function == P_Coeff1 || function == P_Coeff2 || function == P_Coeff3) {
+        setCoeffs();
+    }
+    else {
         /* All other parameters just get set in parameter list, no need to
          * act on them here */
     }
@@ -317,21 +299,20 @@ asynStatus specAsynPortDriver::readFloat64Array(asynUser *pasynUser, epicsFloat6
 {
     int function = pasynUser->reason;
     size_t ncopy;
-    epicsInt32 itemp;
     asynStatus status = asynSuccess;
     epicsTimeStamp timeStamp;
     const char *functionName = "readFloat64Array";
 
     getTimeStamp(&timeStamp);
     pasynUser->timestamp = timeStamp;
-    getIntegerParam(P_MaxPoints, &itemp); ncopy = itemp;
+    ncopy = 3648;
     if (nElements < ncopy) ncopy = nElements;
-    if (function == P_Waveform) {
-        memcpy(value, pData_, ncopy*sizeof(epicsFloat64));
+    if (function == P_XData) {
+        memcpy(value, pXData_, ncopy*sizeof(epicsFloat64));
         *nIn = ncopy;
     }
-    else if (function == P_TimeBase) {
-        memcpy(value, pTimeBase_, ncopy*sizeof(epicsFloat64));
+    else if (function == P_YData) {
+        memcpy(value, pYData_, ncopy*sizeof(epicsFloat64));
         *nIn = ncopy;
     }
     if (status)
@@ -345,59 +326,49 @@ asynStatus specAsynPortDriver::readFloat64Array(asynUser *pasynUser, epicsFloat6
     return status;
 }
 
-asynStatus specAsynPortDriver::readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], size_t nElements, size_t *nIn)
+void specAsynPortDriver::setLed()
 {
-    int function = pasynUser->reason;
-    size_t i;
+    epicsInt32 led;
 
-    if (function == P_VoltsPerDivSelect) {
-        for (i=0; ((i<NUM_VERT_SELECTIONS) && (i<nElements)); i++) {
-            if (strings[i]) free(strings[i]);
-            strings[i] = epicsStrDup(voltsPerDivStrings_[i]);
-            values[i] = voltsPerDivValues_[i];
-            severities[i] = 0;
-        }
-    }
-    else {
-        *nIn = 0;
-        return asynError;
-    }
-    *nIn = i;
-    return asynSuccess;
+    getIntegerParam(P_Led, &led);
+    specDev.setLed(led);
 }
 
-void specAsynPortDriver::setVertGain()
+void specAsynPortDriver::setGain()
 {
-    epicsInt32 igain, i;
-    double gain;
+    epicsInt32 gain;
 
-    getIntegerParam(P_VertGainSelect, &igain);
-    gain = igain;
-    setDoubleParam(P_VertGain, gain);
-    for (i=0; i<NUM_VERT_SELECTIONS; i++) {
-        epicsSnprintf(voltsPerDivStrings_[i], MAX_ENUM_STRING_SIZE, "%.2f", allVoltsPerDivSelections[i] / gain);
-        // The values are in mV
-        voltsPerDivValues_[i] = (int)(allVoltsPerDivSelections[i] / gain * 1000. + 0.5);
-    }
-    doCallbacksEnum(voltsPerDivStrings_, voltsPerDivValues_, voltsPerDivSeverities_, NUM_VERT_SELECTIONS, P_VoltsPerDivSelect, 0);
+    getIntegerParam(P_Gain, &gain);
+    specDev.setGain(gain);
 }
 
-void specAsynPortDriver::setVoltsPerDiv()
+void specAsynPortDriver::setIntTime()
 {
-    epicsInt32 mVPerDiv;
+    epicsInt32 intTime;
 
-    // Integer volts are in mV
-    getIntegerParam(P_VoltsPerDivSelect, &mVPerDiv);
-    setDoubleParam(P_VoltsPerDiv, mVPerDiv / 1000.);
+    getIntegerParam(P_IntTime, &intTime);
+    specDev.setGain(intTime);
 }
 
-void specAsynPortDriver::setTimePerDiv()
+void specAsynPortDriver::setCoeffs()
 {
-    epicsInt32 microSecPerDiv;
+    epicsFloat64 c0, c1, c2, c3;
 
-    // Integer times are in microseconds
-    getIntegerParam(P_TimePerDivSelect, &microSecPerDiv);
-    setDoubleParam(P_TimePerDiv, microSecPerDiv / 1000000.);
+    getDoubleParam(P_Coeff0, &c0);
+    getDoubleParam(P_Coeff1, &c1);
+    getDoubleParam(P_Coeff2, &c2);
+    getDoubleParam(P_Coeff3, &c3);
+
+    pCoeffs_[0] = c0;
+    pCoeffs_[1] = c1;
+    pCoeffs_[2] = c2;
+    pCoeffs_[3] = c3;
+
+    //printf("0: %g 1: %g 2: %g 3: %g\n", pCoeffs_[0], pCoeffs_[1], pCoeffs_[2], pCoeffs_[3]);
+    std::vector<double> temp = specDev.getXData(pCoeffs_);
+    for (int i=0; i<3648; i++) {pXData_[i] = temp[i]; /*printf("%u   %g\n", i, temp[i]);*/}
+        
+    doCallbacksFloat64Array(pXData_, 3648, P_XData, 0);
 }
 
 
