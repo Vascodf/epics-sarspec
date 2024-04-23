@@ -130,7 +130,7 @@ namespace sarspec_usb {
         return xData;
     }
 
-    std::vector<double> SarspecResDevice::getYData(bool extTrigger, int delay) //delay em ms/20000 ??
+    std::vector<double> SarspecResDevice::getYData(bool extTrigger, int delay)
     {
         int status;
         unsigned char bufStartScan[] = { 0x02, 0x00 };

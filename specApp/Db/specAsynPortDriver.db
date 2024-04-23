@@ -19,6 +19,13 @@ record(bi, "$(P)$(R)Run_RBV")
     field(SCAN, "I/O Intr")
 }
 
+record(longout, "$(P)$(R)TriggerDelay")
+{
+   field(PINI, "0")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_TRIGGER_DELAY")
+}
+
 record(longin, "$(P)$(R)TriggerDelay_RBV")
 {
    field(PINI, "0")
@@ -66,15 +73,16 @@ record(longout, "$(P)$(R)IntegrationTime")
 {
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_INT_TIME")
-   field(HOPR, "4")
-   field(LOPR, "2000")
+   field(HOPR, "2000")
+   field(LOPR, "4")
 }
 
-record(longout, "$(P)$(R)TriggerDelay")
+record(longout, "$(P)$(R)Timeout")
 {
-   field(PINI, "0")
    field(DTYP, "asynInt32")
-   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_TRIGGER_DELAY")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_TIMEOUT")
+   field(HOPR, "60000")
+   field(LOPR, "100")
 }
 
 record(bo, "$(P)$(R)ExternalTrigger")

@@ -82,6 +82,7 @@ specAsynPortDriver::specAsynPortDriver(const char *portName) //MAX POINTS == 364
     createParam(P_GainString,               asynParamInt32,           &P_Gain);
     createParam(P_IntTimeString,            asynParamInt32,           &P_IntTime);
     createParam(P_ExtTriggerString,         asynParamInt32,           &P_ExtTrigger);
+    createParam(P_TimeoutString,            asynParamInt32,           &P_Timeout);
     createParam(P_Coeff0String,             asynParamFloat64,         &P_Coeff0);
     createParam(P_Coeff1String,             asynParamFloat64,         &P_Coeff1);
     createParam(P_Coeff2String,             asynParamFloat64,         &P_Coeff2);
@@ -89,15 +90,16 @@ specAsynPortDriver::specAsynPortDriver(const char *portName) //MAX POINTS == 364
 
     /* Set the initial values of some parameters */
     setIntegerParam(P_Run,               0);
-    setIntegerParam(P_Led, 0);
-    setIntegerParam(P_Gain, 1);
-    setIntegerParam(P_IntTime, 10);
-    setIntegerParam(P_ExtTrigger, 0);
-    setIntegerParam(P_TriggerDelay, 0);
-    setDoubleParam(P_Coeff0, 0.0);    
-    setDoubleParam(P_Coeff1, 1.0);
-    setDoubleParam(P_Coeff2, 0.0);
-    setDoubleParam(P_Coeff3, 0.0);
+    setIntegerParam(P_Led,               0);
+    setIntegerParam(P_Gain,              1);
+    setIntegerParam(P_IntTime,           10);
+    setIntegerParam(P_ExtTrigger,        0);
+    setIntegerParam(P_TriggerDelay,      0);
+    setIntegerParam(P_Timeout,           100);
+    setDoubleParam(P_Coeff0,             0.0);    
+    setDoubleParam(P_Coeff1,             1.0);
+    setDoubleParam(P_Coeff2,             0.0);
+    setDoubleParam(P_Coeff3,             0.0);
 
     /* Create the thread that computes the waveforms in the background */
     status = (asynStatus)(epicsThreadCreate("specAsynPortDriverTask",
@@ -336,7 +338,12 @@ void specAsynPortDriver::setCoeffs()
     doCallbacksFloat64Array(pXData_, 3648, P_XData, 0);
 }
 
-
+void specAsynPortDriver::setTimeout()
+{
+    epicsInt32 to;
+    getIntegerParam(P_Timeout, &to);
+    specDev.setTimeout(to);
+}
 /* Configuration routine.  Called directly, or from the iocsh function below */
 
 extern "C" {
