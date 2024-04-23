@@ -1,4 +1,7 @@
 # https://epics-controls.org/resources-and-support/documents/howto-documents/posix-thread-priority/
+# This script needs procserv and telnet packages, e.g. 
+#  sudo apt-get install procserv telnet
+#
 [Unit]
 Description=EPICS Soft IOC ISTTOK Sarspec Res+
 Requires=network.target
