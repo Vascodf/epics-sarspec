@@ -20,22 +20,15 @@
 
 /* These are the drvInfo strings that are used to identify the parameters.
  * They are used by asyn clients, including standard asyn device support */
-#define P_RunString                "SCOPE_RUN"                  /* asynInt32,    r/w */
-#define P_MaxPointsString          "SCOPE_MAX_POINTS"           /* asynInt32,    r/o */
-
+#define P_RunString                "SARSPEC_RUN"                  /* asynInt32,    r/w */
 #define P_TriggerDelayString       "SARSPEC_TRIGGER_DELAY"      /* asynInt32,    r/w */
 #define P_ExtTriggerString         "SARSPEC_EXTERNAL_TRIGGER"   /* asynInt32,    r/w */
-
-#define P_UpdateTimeString         "SARSPEC_UPDATE_TIME"          /* asynFloat64,  r/w */
-
 #define P_Coeff0String             "SARSPEC_COEFF_0"            /* asynFloat64,  r/w */
 #define P_Coeff1String             "SARSPEC_COEFF_1"            /* asynFloat64,  r/w */
 #define P_Coeff2String             "SARSPEC_COEFF_2"            /* asynFloat64,  r/w */
 #define P_Coeff3String             "SARSPEC_COEFF_3"            /* asynFloat64,  r/w */
-
 #define P_YDataString              "SARSPEC_YDATA"              /* asynFloat64Array,  r/o */
 #define P_XDataString              "SARSPEC_XDATA"              /* asynFloat64Array,  r/o */
-
 #define P_LedString                "SARSPEC_LED"                /* asynInt32,    r/w */
 #define P_GainString               "SARSPEC_GAIN"               /* asynInt32,    r/w */
 #define P_IntTimeString            "SARSPEC_INT_TIME"           /* asynInt32,    r/w */
@@ -48,7 +41,7 @@
   * but they should really all be private. */
 class specAsynPortDriver : public asynPortDriver {
 public:
-    specAsynPortDriver(const char *portName, int maxArraySize);
+    specAsynPortDriver(const char *portName);
 
     /* These are the methods that we override from asynPortDriver */
     virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
@@ -62,21 +55,14 @@ public:
 protected:
     /** Values used for pasynUser->reason, and indexes into the parameter library. */
     int P_Run;
-    int P_MaxPoints;
-    
     int P_TriggerDelay;
     int P_ExtTrigger;
-    
-    int P_UpdateTime;
-    
     int P_Coeff0;
     int P_Coeff1;
     int P_Coeff2;
     int P_Coeff3;
-    
     int P_YData;
     int P_XData;
-    
     int P_Led;
     int P_Gain;
     int P_IntTime;

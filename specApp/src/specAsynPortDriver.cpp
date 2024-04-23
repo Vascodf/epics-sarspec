@@ -45,7 +45,7 @@ void acquireTask(void *drvPvt);
   * Calls constructor for the asynPortDriver base class.
   * \param[in] portName The name of the asyn port driver to be created.
   * \param[in] maxPoints The maximum  number of points in the volt and time arrays */
-specAsynPortDriver::specAsynPortDriver(const char *portName, int maxPoints) //MAX POINTS == 3648
+specAsynPortDriver::specAsynPortDriver(const char *portName) //MAX POINTS == 3648
    : asynPortDriver(portName,
                     1, /* maxAddr */
                     asynInt32Mask | asynFloat64Mask | asynFloat64ArrayMask | asynEnumMask | asynDrvUserMask, /* Interface mask */
@@ -61,9 +61,6 @@ specAsynPortDriver::specAsynPortDriver(const char *portName, int maxPoints) //MA
     //int integrationTime = 3;
     //bool temp = false;
 
-    /* Make sure maxPoints is positive */
-    if (maxPoints < 1) maxPoints = 3648;
-
     if(!specDev.connect(0x0403, 0x6010)) {
                         printf("Failed to connect device\n");
                     //return EXIT_FAILURE;
@@ -78,27 +75,9 @@ specAsynPortDriver::specAsynPortDriver(const char *portName, int maxPoints) //MA
     
     eventId_ = epicsEventCreate(epicsEventEmpty);
     createParam(P_RunString,                asynParamInt32,         &P_Run);
-    createParam(P_MaxPointsString,          asynParamInt32,         &P_MaxPoints);
-
     createParam(P_TriggerDelayString,       asynParamInt32,         &P_TriggerDelay);
-
-    createParam(P_UpdateTimeString,         asynParamFloat64,       &P_UpdateTime);
-    
-    
     createParam(P_YDataString,              asynParamFloat64Array,  &P_YData);
     createParam(P_XDataString,              asynParamFloat64Array,  &P_XData);
-
-    /* Set the initial values of some parameters */
-    setIntegerParam(P_MaxPoints,         3648);
-    setIntegerParam(P_Run,               0);
-    setDoubleParam (P_UpdateTime,        0.5);
-    /*
-    
-    Minhas coisas
-    
-    */
-
-    //createParam(P_RunString,              asynParamInt32,         &P_Run); repetido
     createParam(P_LedString,                asynParamInt32,           &P_Led);
     createParam(P_GainString,               asynParamInt32,           &P_Gain);
     createParam(P_IntTimeString,            asynParamInt32,           &P_IntTime);
@@ -108,7 +87,8 @@ specAsynPortDriver::specAsynPortDriver(const char *portName, int maxPoints) //MA
     createParam(P_Coeff2String,             asynParamFloat64,         &P_Coeff2);
     createParam(P_Coeff3String,             asynParamFloat64,         &P_Coeff3);
 
-    //setIntegerParam(P_Run, 0); repetido
+    /* Set the initial values of some parameters */
+    setIntegerParam(P_Run,               0);
     setIntegerParam(P_Led, 0);
     setIntegerParam(P_Gain, 1);
     setIntegerParam(P_IntTime, 10);
@@ -149,14 +129,8 @@ void specAsynPortDriver::acquireTask(void)
 {
     /* This thread computes the waveform and does callbacks with it */
 
-    epicsInt32 run, maxPoints, ext, delay;
-    epicsFloat64 updateTime;
-    
-    getIntegerParam(P_MaxPoints, &maxPoints);
-    getIntegerParam(P_ExtTrigger, &ext);
-    getIntegerParam(P_TriggerDelay, &delay);
+    epicsInt32 run, ext, delay;
     getIntegerParam(P_Run, &run);
-    getDoubleParam(P_UpdateTime, &updateTime);
     
     lock();
     /* Loop forever */
@@ -164,14 +138,16 @@ void specAsynPortDriver::acquireTask(void)
 
         // Release the lock while we wait for a command to start or wait for updateTime
         unlock();
-        if (run) epicsEventWaitWithTimeout(eventId_, updateTime);
+        if (run) epicsEventWaitWithTimeout(eventId_, 0.5);
         else     (void) epicsEventWait(eventId_);
         // Take the lock again
         lock();
         /* run could have changed while we were waiting */
         getIntegerParam(P_Run, &run);
         if (!run) continue;
-        
+    
+        getIntegerParam(P_ExtTrigger, &ext);
+        getIntegerParam(P_TriggerDelay, &delay);
         std::vector<double> temp = specDev.getYData(ext, delay);
         for (int i=0; i<3648; i++) {pYData_[i] = temp[i]; /*printf("%u   %g\n", i, temp[i]);*/}
 
@@ -242,7 +218,6 @@ asynStatus specAsynPortDriver::writeFloat64(asynUser *pasynUser, epicsFloat64 va
 {
     int function = pasynUser->reason;
     asynStatus status = asynSuccess;
-    epicsInt32 run;
     const char *paramName;
     const char* functionName = "writeFloat64";
 
@@ -252,20 +227,7 @@ asynStatus specAsynPortDriver::writeFloat64(asynUser *pasynUser, epicsFloat64 va
     /* Fetch the parameter string name for possible use in debugging */
     getParamName(function, &paramName);
 
-    if (function == P_UpdateTime) {
-        /* Make sure the update time is valid. If not change it and put back in parameter library */
-        if (value < MIN_UPDATE_TIME) {
-            asynPrint(pasynUser, ASYN_TRACE_WARNING,
-                "%s:%s: warning, update time too small, changed from %f to %f\n",
-                driverName, functionName, value, MIN_UPDATE_TIME);
-            value = MIN_UPDATE_TIME;
-            setDoubleParam(P_UpdateTime, value);
-        }
-        /* If the update time has changed and we are running then wake up the simulation task */
-        getIntegerParam(P_Run, &run);
-        if (run) epicsEventSignal(eventId_);
-    }
-    else if (function == P_Coeff0 || function == P_Coeff1 || function == P_Coeff2 || function == P_Coeff3) {
+    if (function == P_Coeff0 || function == P_Coeff1 || function == P_Coeff2 || function == P_Coeff3) {
         setCoeffs();
     }
     else {
@@ -339,7 +301,8 @@ void specAsynPortDriver::setGain()
     epicsInt32 gain;
 
     getIntegerParam(P_Gain, &gain);
-    specDev.setGain(gain);
+    printf("Set gain to: %u\n", gain);
+    specDev.setDeviceGain(gain);
 }
 
 void specAsynPortDriver::setIntTime()
@@ -347,7 +310,9 @@ void specAsynPortDriver::setIntTime()
     epicsInt32 intTime;
 
     getIntegerParam(P_IntTime, &intTime);
-    specDev.setGain(intTime);
+    printf("Set itime to: %u\n", intTime);
+
+    specDev.setIntegrationTime(intTime);
 }
 
 void specAsynPortDriver::setCoeffs()
@@ -379,9 +344,9 @@ extern "C" {
 /** EPICS iocsh callable function to call constructor for the specAsynPortDriver class.
   * \param[in] portName The name of the asyn port driver to be created.
   * \param[in] maxPoints The maximum  number of points in the volt and time arrays */
-int specAsynPortDriverConfigure(const char *portName, int maxPoints)
+int specAsynPortDriverConfigure(const char *portName)
 {
-    new specAsynPortDriver(portName, maxPoints);
+    new specAsynPortDriver(portName);
     return(asynSuccess);
 }
 
@@ -389,13 +354,11 @@ int specAsynPortDriverConfigure(const char *portName, int maxPoints)
 /* EPICS iocsh shell commands */
 
 static const iocshArg initArg0 = { "portName",iocshArgString};
-static const iocshArg initArg1 = { "max points",iocshArgInt};
-static const iocshArg * const initArgs[] = {&initArg0,
-                                            &initArg1};
-static const iocshFuncDef initFuncDef = {"specAsynPortDriverConfigure",2,initArgs};
+static const iocshArg * const initArgs[] = {&initArg0};
+static const iocshFuncDef initFuncDef = {"specAsynPortDriverConfigure",1,initArgs};
 static void initCallFunc(const iocshArgBuf *args)
 {
-    specAsynPortDriverConfigure(args[0].sval, args[1].ival);
+    specAsynPortDriverConfigure(args[0].sval);
 }
 
 void specAsynPortDriverRegister(void)

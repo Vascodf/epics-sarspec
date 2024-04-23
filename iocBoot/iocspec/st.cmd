@@ -1,4 +1,4 @@
-#!../../bin/linux-x86_64/spec
+#!../../bin/linux-aarch64/spec
 
 #- You may have to change spec to something else
 #- everywhere it appears in this file
@@ -11,18 +11,18 @@ cd "${TOP}"
 dbLoadDatabase "dbd/spec.dbd"
 spec_registerRecordDeviceDriver pdbbase
 
-specAsynPortDriverConfigure("testAPD", 1000)
+specAsynPortDriverConfigure("sarspec")
 
 ## Load record instances
-#dbLoadRecords("db/xxx.db","user=bernardo")
-dbLoadRecords("db/specAsynPortDriver.db","P=ISTTOK:,R=sarspec:,PORT=testAPD,ADDR=0,TIMEOUT=1,NPOINTS=3648")
-dbLoadRecords("${ASYN}/db/asynRecord.db","P=ISTTOK:,R=asyn1,PORT=testAPD,ADDR=0,OMAX=80,IMAX=80")
+#dbLoadRecords("db/xxx.db","user=oper")
+dbLoadRecords("db/specAsynPortDriver.db","P=ISTTOK:,R=sarspec:,PORT=sarspec,ADDR=0,TIMEOUT=1")
+dbLoadRecords("${ASYN}/db/asynRecord.db","P=ISTTOK:,R=asyn1,PORT=sarspec,ADDR=0,OMAX=80,IMAX=80")
 
-#asynSetTraceMask("testAPD",0,0xff)
-asynSetTraceIOMask("testAPD",0,0x2)
+#asynSetTraceMask("sarspec",0,0xff)
+asynSetTraceIOMask("sarspec",0,0x2)
 
 cd "${TOP}/iocBoot/${IOC}"
 iocInit
 
 ## Start any sequence programs
-#seq sncxxx,"user=bernardo"
+#seq sncxxx,"user=oper"

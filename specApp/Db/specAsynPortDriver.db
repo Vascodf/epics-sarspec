@@ -1,11 +1,8 @@
-###################################################################
-#  These records control run/stop                                 # 
-###################################################################
 record(bo, "$(P)$(R)Run")
 {
     field(PINI,  "1")
     field(DTYP, "asynInt32")
-    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SCOPE_RUN")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_RUN")
     field(ZNAM, "Stop")
     field(ONAM, "Run")
 }
@@ -14,24 +11,12 @@ record(bi, "$(P)$(R)Run_RBV")
 {
     field(PINI, "1")
     field(DTYP, "asynInt32")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SCOPE_RUN")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_RUN")
     field(ZNAM, "Done")
     field(ZSV,  "NO_ALARM")
     field(ONAM, "Running")
     field(OSV,  "MINOR")
     field(SCAN, "I/O Intr")
-}
-
-###################################################################
-#  This records is the number of points                           # 
-###################################################################
-
-record(longin, "$(P)$(R)MaxPoints_RBV")
-{
-   field(PINI, "1")
-   field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SCOPE_MAX_POINTS")
-   field(SCAN, "I/O Intr")
 }
 
 record(longin, "$(P)$(R)TriggerDelay_RBV")
@@ -42,29 +27,6 @@ record(longin, "$(P)$(R)TriggerDelay_RBV")
    field(SCAN, "I/O Intr")
 }
 
-###################################################################
-#  These records are the update time                              #
-###################################################################
-record(ao, "$(P)$(R)UpdateTime")
-{
-   field(PINI, "1")
-   field(DTYP, "asynFloat64")
-   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SCOPE_UPDATE_TIME")
-   field(PREC, "3")
-}
-
-record(ai, "$(P)$(R)UpdateTime_RBV")
-{
-   field(PINI, "1")
-   field(DTYP, "asynFloat64")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_UPDATE_TIME")
-   field(PREC, "3")
-   field(SCAN, "I/O Intr")
-}
-
-###################################################################
-#  This record is the waveform                                    #
-###################################################################
 record(waveform, "$(P)$(R)YData")
 {
     field(DTYP, "asynFloat64ArrayIn")
@@ -74,9 +36,6 @@ record(waveform, "$(P)$(R)YData")
     field(SCAN, "I/O Intr")
 }
 
-###################################################################
-#  This record is the time base                                   #
-###################################################################
 record(waveform, "$(P)$(R)XData")
 {
     field(DTYP, "asynFloat64ArrayIn")
@@ -111,9 +70,6 @@ record(longout, "$(P)$(R)IntegrationTime")
    field(LOPR, "2000")
 }
 
-###################################################################
-#  These records are the trigger delay                            #
-###################################################################
 record(longout, "$(P)$(R)TriggerDelay")
 {
    field(PINI, "0")
