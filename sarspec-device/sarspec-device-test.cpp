@@ -10,6 +10,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <unistd.h>
 
 #include "sarspec-device.h"
 
@@ -25,30 +26,40 @@ namespace sarspec_usb_test {
         }
 
         std::vector<double> x;
-        std::vector<double> y;
+        std::vector<std::vector<double>> y;
 
         double coeffs[4] = {0, 1, 0, 0};
 
         bool a = teste.setDeviceGain(1);
         bool b = teste.setIntegrationTime(10);
+        int aqNr = 5;
 
-        timespec startTime, endTime;
         x = teste.getXData(coeffs);
-        y = teste.getYData(true, 0);
 
+        for (int i=0; i < 5; i++) {
+            std::cout << i << std::endl;
+            std::string filename = "data";
+            y = teste.getYDataSequence(true, aqNr, 50);
+
+            std::ofstream Data((filename + std::to_string(i) + ".txt").c_str());
+            
+            for (int j = 0; j < aqNr; j++) {
+                for (int i = 0; i < 3648; i++) {
+                    Data << y[j][i] << " ";
+                }
+                Data << "\n";
+        }
+    
+        Data.close();
+        }
+        //y = teste.getYDataSequence(true, 6, 30);
         //for (int i = 0; i<256; i++) {
         //
         //    printf(teste.ReadEEPROMPage(i));
         //    printf("\n");
         //} Ver se ele guarda no EEPROM
 
-        std::ofstream Data("data.txt");
-
-        for (int i = 0; i < 3648; i++) {
-            Data << x[i] << ";" << y[i] << "\n";
-        }
-
-        Data.close();
+        
         teste.disconnect();
 
         return EXIT_SUCCESS;

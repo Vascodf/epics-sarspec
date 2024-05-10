@@ -20,8 +20,9 @@
 
 /* These are the drvInfo strings that are used to identify the parameters.
  * They are used by asyn clients, including standard asyn device support */
-#define P_RunString                "SARSPEC_RUN"                  /* asynInt32,    r/w */
-#define P_TriggerDelayString       "SARSPEC_TRIGGER_DELAY"      /* asynInt32,    r/w */
+#define P_RunString                "SARSPEC_RUN"                /* asynInt32,    r/w */
+#define P_AcqNumberString                "SARSPEC_ACQ_NUMBER"         /* asynInt32,    r/w */
+#define P_AcqTimeGapString               "SARSPEC_ACQ_TIME_GAP"         /* asynInt32,    r/w */
 #define P_ExtTriggerString         "SARSPEC_EXTERNAL_TRIGGER"   /* asynInt32,    r/w */
 #define P_Coeff0String             "SARSPEC_COEFF_0"            /* asynFloat64,  r/w */
 #define P_Coeff1String             "SARSPEC_COEFF_1"            /* asynFloat64,  r/w */
@@ -56,7 +57,8 @@ public:
 protected:
     /** Values used for pasynUser->reason, and indexes into the parameter library. */
     int P_Run;
-    int P_TriggerDelay;
+    int P_AcqNumber;
+    int P_AcqTimeGap;
     int P_ExtTrigger;
     int P_Coeff0;
     int P_Coeff1;
@@ -81,5 +83,8 @@ private:
     void setIntTime();
     void setCoeffs();
     void setTimeout();
+
+    void saveYData(std::vector<std::vector<double>> y);
+    //void saveXData(std::vector<std::vector<double>> x);
     sarspec_usb::SarspecResDevice specDev;
 };

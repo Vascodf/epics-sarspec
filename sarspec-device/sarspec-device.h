@@ -60,7 +60,11 @@ namespace sarspec_usb {
             std::vector<double> getYData(bool extTrigger, int delay);
             std::vector<double> getXData(double coeffs[4]);
 
+            std::vector<std::vector<double>> getYDataSequence(bool extTrigger, int nr, int tinterval);
+
         private:
+
+            uint64_t timespecDiff(timespec start, timespec end);
 
             struct ftdi_context *ftdi_dev;
             struct ftdi_transfer_control* tc;
@@ -72,6 +76,8 @@ namespace sarspec_usb {
 
             std::vector<double> yData;
             std::vector<double> xData;
+
+            std::vector<std::vector<double>> yDataS;
 
             double darkGain[2];
             double gain0;

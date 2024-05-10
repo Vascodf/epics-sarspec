@@ -21,8 +21,10 @@
 
 namespace sarspec_usb {
     const int DA_LEVELS = 65536;
-    const int P = 3648;  //Sony 2048    Toshiba 3648
-    const int L = 3694;  //Sony 2087    Toshiba 3694
+    const int P = 3648;  //Toshiba 3648 pixels
+    const int L = 3694;  //Toshiba 3694
+
+    bool is_connected;
 
     SarspecResDevice::SarspecResDevice() : ftdi_dev(NULL)
     {
@@ -35,6 +37,8 @@ namespace sarspec_usb {
         ftdi_set_latency_timer(ftdi_dev, 1);
         ftdi_dev -> usb_read_timeout = 300000;
         ftdi_dev -> usb_write_timeout = 300000;
+
+        is_connected = false;
     }
 
     SarspecResDevice::~SarspecResDevice()
@@ -42,18 +46,29 @@ namespace sarspec_usb {
         //disconnect();
     }
 
+    /** Connects to device, sets initial dark and gain values to those stored in
+      * EEPROM. Returns true on success, false on error.
+      * \param[in] product product identification integer
+      * \param[in] vendor vendor identification integer*/
+    
     bool SarspecResDevice::connect(int vendor, int product)
     {
         int status;
+
+        if (is_connected)
+            return false;
+        
         if ((status = ftdi_usb_open(ftdi_dev, vendor, product)) < 0)
         {
             //std::cerr << 
             //<< std::endl;
-            std::cerr << "unable to open ftdi device: " << status 
+            std::cerr << "unable to open ftdi device: " << status
                 << ftdi_get_error_string(ftdi_dev) << std::endl;
             ftdi_free(ftdi_dev);
             return false;
         }
+
+        is_connected = true;
 
         unsigned char bufDark[] = {0x06, 0x00, 0x00};
         unsigned char bufGain[] = {0x08, 0x00, 0x00};
@@ -63,24 +78,38 @@ namespace sarspec_usb {
         bufDark[1] = 9;
         bufDark[2] = 0;
         status = ftdi_write_data(ftdi_dev, bufDark, 3);
-        if (status <= 0) return false;
+        if (status <= 0) { 
+            ftdi_free(ftdi_dev);
+            return false;
+        }
 
         bufGain[1] = 0x12;
         bufGain[2] = 0;
         status = ftdi_write_data(ftdi_dev, bufGain, 3);
-        if (status <= 0) return false;
+        if (status <= 0) { 
+            ftdi_free(ftdi_dev);
+            return false;
+        }
 
         getCurrentEEPROMDarkGain();
         gain0 = darkGain[1];
 
         double d = setDark(darkGain[0]);
         double g = setGain(darkGain[1]);
-        if (d == 0 || g == 0) return false;
+        if (d == 0 || g == 0)
+            return false;
 
         return true;
     }
+
+    /** Disconnects device. Returns same as ftdi_usb_close() and -2 if device
+    is not connected.*/
     int SarspecResDevice::disconnect()
     {
+
+        if(!is_connected)
+            return -2;
+
         int status;
         if ((status = ftdi_usb_close(ftdi_dev)) < 0)
         {
@@ -92,10 +121,18 @@ namespace sarspec_usb {
 
         ftdi_free(ftdi_dev);
 
+        is_connected = false;
         return status;
     }
+
+    /** Sets LED ON/OFF. Returns same as ftdi_write_data().
+      * \param[in] led ON/OFF value*/
     int SarspecResDevice::setLed(bool led)
     {
+
+        if (!is_connected)
+            return -666;
+
         int status;
         unsigned char bufLED[] = {0x18, 0x00};
 
@@ -120,6 +157,10 @@ namespace sarspec_usb {
         return status;
     }
 
+    /** Calculates values for wavelength using: c0 + c1n + c2n^2 + c3n^3 where n
+      * is the pixel number.
+      * Returns wavelength vector.
+      * \param[in] coeffs c0, c1, c2, c3*/
     std::vector<double> SarspecResDevice::getXData(double coeffs[4])
     {
         xData.clear();
@@ -130,16 +171,23 @@ namespace sarspec_usb {
         return xData;
     }
 
+    /** Gets YData
+      * Returns intensity vector.
+      * \param[in] extTrigger whether to use external trigger.
+      * \param[in] delay external trigger delay in ms. (not working)*/
     std::vector<double> SarspecResDevice::getYData(bool extTrigger, int delay)
     {
+        if (!is_connected) {
+            std::vector<double> v(3648, 0.0);
+            return v;
+        }
+
         int status;
         unsigned char bufStartScan[] = { 0x02, 0x00 };
         unsigned char bufStartScanExt[] = { 0x10, 0, 0, 0, 1 };
         unsigned char incomingBuf[8192];
         uint32_t bytesRead;
         yData.clear();
-
-        timespec startTime, endTime;
 
         if (extTrigger) {
 
@@ -163,7 +211,8 @@ namespace sarspec_usb {
                 bytesRead = tc->size;
             }
             else {
-                return std::vector<double> {0};
+                std::vector<double> v(3648, 0.0);
+                return v;
             }
 
             ftdi_tcioflush(ftdi_dev);
@@ -178,7 +227,8 @@ namespace sarspec_usb {
                 bytesRead = tc->size;
             }
             else {
-                return std::vector<double> {0};
+                std::vector<double> v(3648, 0.0);
+                return v;
             }
 
             ftdi_tcioflush(ftdi_dev);
@@ -188,6 +238,7 @@ namespace sarspec_usb {
 
         for (int i = 0; i < int(bytesRead >> 1); i++) {
 
+            //Each pixel has 2 bytes of data to form a 16 bit integer
             temp[i] = (uint16_t)(incomingBuf[i << 1] | (incomingBuf[(i << 1) + 1] << 8));
 
             if (i >= 32 && i <= 3679) {
@@ -198,8 +249,127 @@ namespace sarspec_usb {
         return yData;
     }
 
+    /** Gets fast series of YData.
+      * Returns [nr] intensity vectors.
+      * \param[in] nr number of acquisitions.
+      * \param[in] tinterval time interval between subsequent acquisitions in ms.
+      * \param[in] extTrigger whether to use external trigger for first acquisition.*/
+    std::vector<std::vector<double>> SarspecResDevice::getYDataSequence(bool extTrigger, int nr, int tinterval)
+    {
+
+        if (!is_connected) {
+            std::vector<double> v(3648, 0.0);
+            std::vector<std::vector<double>> V(nr, v);
+            return V;
+        }
+
+        int status;
+        unsigned char bufStartScan[] = { 0x02, 0x00 };
+        unsigned char bufStartScanExt[] = { 0x10, 0, 0, 0, 1 };
+        unsigned char incomingBufs[nr][8192];
+        uint32_t bytesRead;
+        timespec instants[nr * 2];
+        yDataS.clear();
+
+        //First acquisition using external trigger
+        if (extTrigger) {
+
+            ftdi_tcioflush(ftdi_dev);
+            
+            clock_gettime(CLOCK_MONOTONIC, &instants[0]);
+
+            status = ftdi_write_data(ftdi_dev, bufStartScanExt, 5);
+            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[0], L << 1);
+            ftdi_transfer_data_done(tc);
+
+            clock_gettime(CLOCK_MONOTONIC, &instants[1]);
+        }
+        //First acquisition using internal trigger
+        else {
+
+            ftdi_tcioflush(ftdi_dev);
+
+            clock_gettime(CLOCK_MONOTONIC, &instants[0]);
+
+            status = ftdi_write_data(ftdi_dev, bufStartScan, 1);
+            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[0], L << 1);
+            ftdi_transfer_data_done(tc);
+
+            clock_gettime(CLOCK_MONOTONIC, &instants[1]);
+        }
+
+        //Subsequent acquisitions using internal triggers
+        for (int i = 1; i < nr; i++) {
+            
+            ftdi_tcioflush(ftdi_dev);
+
+            clock_gettime(CLOCK_MONOTONIC, &instants[i * 2]);
+
+            while ((double)(timespecDiff(instants[i * 2 - 2], instants[i * 2]))/1e6 < tinterval) {
+                clock_gettime(CLOCK_MONOTONIC, &instants[i * 2]);
+            }
+
+            status = ftdi_write_data(ftdi_dev, bufStartScan, 1);
+            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[i], L << 1);
+            ftdi_transfer_data_done(tc);
+
+            clock_gettime(CLOCK_MONOTONIC, &instants[i * 2 + 1]);
+        }
+
+
+        ftdi_tcioflush(ftdi_dev);
+
+        if (tc->size > 0) {
+                bytesRead = tc->size;
+        }
+        else {
+            std::vector<double> v(3648, 0.0);
+            std::vector<std::vector<double>> V(nr, v);
+            return V;
+        }
+
+        std::vector<double> temp;
+        std::vector<uint16_t> temp1;
+
+        for (int j = 0; j < nr; j++) {
+            
+            temp1.clear();
+            temp.clear();
+
+            for (int i = 0; i < int(bytesRead >> 1); i++) {
+
+                //Each pixel has 2 bytes of data to form a 16 bit integer
+                temp1.push_back((uint16_t)(incomingBufs[j][i << 1] | (incomingBufs[j][(i << 1) + 1] << 8)));
+
+                if (i >= 32 && i <= 3679) {
+                    temp.push_back(double(temp1[i]));
+                }
+            }
+
+            yDataS.push_back(temp);
+        }
+
+        for (int i = 1; i < nr; i++) {
+            printf("%u: %g ms, ", i, (double)(timespecDiff(instants[0], instants[i * 2]))/1e6);
+        }
+        printf("\n");
+        for (int i = 1; i < nr; i++) {
+            printf("%u - %u: %g ms, ", i - 1, i, (double)(timespecDiff(instants[i * 2 - 2], instants[i * 2]))/1e6);
+        }
+        printf("\n");
+
+        return yDataS;
+    }
+
+    /** Sets device integration time.
+      * Returns true on success, false on error.
+      * \param[in] intTime new integration time value in ms. Minimum of 4ms.*/
     bool SarspecResDevice::setIntegrationTime(int intTime)
     {
+
+        if (!is_connected)
+            return false;
+
         int status;
 
         if(intTime < 3 || intTime > 214500){return false;}
@@ -240,8 +410,15 @@ namespace sarspec_usb {
         return false;
     }
 
+    /** Sets USB port timeout.
+      * Returns true on success, false on error.
+      * \param[in] timeOut new time out value in ms. Minimum of 100ms*/
     bool SarspecResDevice::setTimeout(int timeOut)
     {
+
+        if (!is_connected)
+            return false;
+
         int status;
         if (timeOut < 100) {return false;}
 
@@ -255,6 +432,9 @@ namespace sarspec_usb {
         return false;
     }
 
+    /** Reads EEPROMPage.
+      * Returns read character array.
+      * \param[in] page page to be read 0 <= page < 255.*/
     char* SarspecResDevice::readEEPROMPage(int page) 
     {
         int status;
@@ -263,11 +443,9 @@ namespace sarspec_usb {
         unsigned char bufEEPROM_R[64];
         unsigned char pageaddr;
 
-        //0<=Page<256
-        if (page > 255)
-        {
+        if (page > 255 || !is_connected)
             return ret;
-        }
+
         pageaddr = (unsigned char)page;
         bufEEPROM_RCMD[1] = pageaddr;
 
@@ -287,8 +465,15 @@ namespace sarspec_usb {
         return ret;
     }
 
+    /** Sets device dark.
+      * Returns dark set.
+      * \param[in] dark new dark value.*/
     double SarspecResDevice::setDark(int dark)
     {
+
+        if (!is_connected)
+            return 0;
+
         int status;
         uint16_t DARK = dark;
         unsigned char bufDark[] = {0x06, 0x00, 0x00};
@@ -305,8 +490,15 @@ namespace sarspec_usb {
         return 0;
     }
 
+    /** Sets device gain.
+      * Returns gain set in V.
+      * \param[in] gain new gain value.*/
     double SarspecResDevice::setGain(int gain)
     {
+
+        if (!is_connected)
+            return 0;
+
         int status;
         uint16_t GAIN = gain;
 
@@ -326,8 +518,14 @@ namespace sarspec_usb {
         return 0;
     }
 
+    /** Reads EEPROM dark and gain values.
+      * Returns read dark and gain array.*/
     double* SarspecResDevice::getCurrentEEPROMDarkGain()
     {
+
+        if (!is_connected)
+            return 0;
+
         char *tempstr = readEEPROMPage(0);
 
         //char to string
@@ -352,9 +550,13 @@ namespace sarspec_usb {
         return darkGain;	
     }
 
+    /** Sets device gain (user).
+      * Returns true on success, false on error.
+      * \param[in] gain new gain value 0 < gain < 500.*/
     bool SarspecResDevice::setDeviceGain(int gain)
     {
-        if (gain < 1 || gain > 500) {
+
+        if (gain < 1 || gain > 500 || !is_connected) {
             return false;
         }
 
@@ -375,6 +577,13 @@ namespace sarspec_usb {
         {
             return true;
         }
+    }
+
+    //https://stackoverflow.com/questions/6749621/how-to-create-a-high-resolution-timer-in-linux-to-measure-program-performance
+    uint64_t SarspecResDevice::timespecDiff(timespec start, timespec end)
+    {
+        return ((end.tv_sec * 1000000000UL) + end.tv_nsec) -
+            ((start.tv_sec * 1000000000UL) + start.tv_nsec);
     }
 
 } // namespace sarspec_usb

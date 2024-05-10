@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <math.h>
+#include <fstream>
 
 #include <epicsTypes.h>
 #include <epicsTime.h>
@@ -29,13 +30,6 @@
 
 #include "specAsynPortDriver.h"
 #include <epicsExport.h>
-
-#define FREQUENCY 1000       /* Frequency in Hz */
-#define AMPLITUDE 1.0        /* Plus and minus peaks of sin wave */
-#define NUM_DIVISIONS 10     /* Number of scope divisions in X and Y */
-#define MIN_UPDATE_TIME 0.02 /* Minimum update time, to prevent CPU saturation */
-
-#define MAX_ENUM_STRING_SIZE 20
 
 static const char *driverName="specAsynPortDriver";
 void acquireTask(void *drvPvt);
@@ -74,10 +68,12 @@ specAsynPortDriver::specAsynPortDriver(const char *portName) //MAX POINTS == 364
     pXData_ = (epicsFloat64 *)calloc(3648, sizeof(epicsFloat64));
     
     eventId_ = epicsEventCreate(epicsEventEmpty);
-    createParam(P_RunString,                asynParamInt32,         &P_Run);
-    createParam(P_TriggerDelayString,       asynParamInt32,         &P_TriggerDelay);
-    createParam(P_YDataString,              asynParamFloat64Array,  &P_YData);
-    createParam(P_XDataString,              asynParamFloat64Array,  &P_XData);
+
+    createParam(P_RunString,                asynParamInt32,           &P_Run);
+    createParam(P_AcqTimeGapString,         asynParamInt32,           &P_AcqTimeGap);
+    createParam(P_AcqNumberString,          asynParamInt32,           &P_AcqNumber);
+    createParam(P_YDataString,              asynParamFloat64Array,    &P_YData);
+    createParam(P_XDataString,              asynParamFloat64Array,    &P_XData);
     createParam(P_LedString,                asynParamInt32,           &P_Led);
     createParam(P_GainString,               asynParamInt32,           &P_Gain);
     createParam(P_IntTimeString,            asynParamInt32,           &P_IntTime);
@@ -94,7 +90,8 @@ specAsynPortDriver::specAsynPortDriver(const char *portName) //MAX POINTS == 364
     setIntegerParam(P_Gain,              1);
     setIntegerParam(P_IntTime,           10);
     setIntegerParam(P_ExtTrigger,        0);
-    setIntegerParam(P_TriggerDelay,      0);
+    setIntegerParam(P_AcqTimeGap,        30);
+    setIntegerParam(P_AcqNumber,         1);
     setIntegerParam(P_Timeout,           100);
     setDoubleParam(P_Coeff0,             0.0);    
     setDoubleParam(P_Coeff1,             1.0);
@@ -131,7 +128,7 @@ void specAsynPortDriver::acquireTask(void)
 {
     /* This thread computes the waveform and does callbacks with it */
 
-    epicsInt32 run, ext, delay;
+    epicsInt32 run, ext, nr, tinterval;
     getIntegerParam(P_Run, &run);
     
     lock();
@@ -149,9 +146,11 @@ void specAsynPortDriver::acquireTask(void)
         if (!run) continue;
     
         getIntegerParam(P_ExtTrigger, &ext);
-        getIntegerParam(P_TriggerDelay, &delay);
-        std::vector<double> temp = specDev.getYData(ext, delay);
-        for (int i=0; i<3648; i++) {pYData_[i] = temp[i]; /*printf("%u   %g\n", i, temp[i]);*/}
+        getIntegerParam(P_AcqTimeGap, &tinterval);
+        getIntegerParam(P_AcqNumber, &nr);
+        std::vector<std::vector<double>> temp = specDev.getYDataSequence(ext, nr, tinterval);
+        saveYData(temp);
+        for (int i=0; i<3648; i++) {pYData_[i] = temp[0][i];}
 
         setIntegerParam(P_Run, 0);
 
@@ -343,6 +342,24 @@ void specAsynPortDriver::setTimeout()
     epicsInt32 to;
     getIntegerParam(P_Timeout, &to);
     specDev.setTimeout(to);
+}
+
+void specAsynPortDriver::saveYData(std::vector<std::vector<double>> y)
+{
+    int aqNr;
+
+    getIntegerParam(P_AcqNumber, &aqNr);
+
+    std::ofstream Data("data.txt");
+
+        for (int j = 0; j < aqNr; j++) {
+            for (int i = 0; i < 3648; i++) {
+                Data << y[j][i] << " ";
+            }
+            Data << "\n";
+    }
+
+    Data.close();
 }
 /* Configuration routine.  Called directly, or from the iocsh function below */
 

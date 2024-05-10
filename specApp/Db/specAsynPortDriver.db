@@ -19,19 +19,17 @@ record(bi, "$(P)$(R)Run_RBV")
     field(SCAN, "I/O Intr")
 }
 
-record(longout, "$(P)$(R)TriggerDelay")
+record(longout, "$(P)$(R)AcqTimeGap")
 {
-   field(PINI, "0")
    field(DTYP, "asynInt32")
-   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_TRIGGER_DELAY")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_ACQ_TIME_GAP")
 }
 
-record(longin, "$(P)$(R)TriggerDelay_RBV")
+record(longout, "$(P)$(R)AcqNumber")
 {
-   field(PINI, "0")
+   field(PINI, "1")
    field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_TRIGGER_DELAY")
-   field(SCAN, "I/O Intr")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_ACQ_NUMBER")
 }
 
 record(waveform, "$(P)$(R)YData")
