@@ -12,7 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
-
+#include <unistd.h>
 #include "sarspec-device.h"
 
 
@@ -37,6 +37,11 @@ namespace sarspec_usb {
         ftdi_set_latency_timer(ftdi_dev, 1);
         ftdi_dev -> usb_read_timeout = 300000;
         ftdi_dev -> usb_write_timeout = 300000;
+
+        std::cout << "usb type: " << ftdi_dev -> type << std::endl;
+
+        //unsigned int chunkSize = 7385;
+        //ftdi_read_data_set_chunksize(ftdi_dev, chunkSize);
 
         is_connected = false;
     }
@@ -247,10 +252,12 @@ namespace sarspec_usb {
         }
 
         return yData;
+
+        //return getYDataSequence(extTrigger, 1, 0);
     }
 
     /** Gets fast series of YData.
-      * Returns [nr] intensity vectors.
+      * Returns [nr] vectors where last value is timestamp in ms and the rest are intensity.
       * \param[in] nr number of acquisitions.
       * \param[in] tinterval time interval between subsequent acquisitions in ms.
       * \param[in] extTrigger whether to use external trigger for first acquisition.*/
@@ -258,7 +265,7 @@ namespace sarspec_usb {
     {
 
         if (!is_connected) {
-            std::vector<double> v(3648, 0.0);
+            std::vector<double> v(3649, 0.0);
             std::vector<std::vector<double>> V(nr, v);
             return V;
         }
@@ -266,34 +273,49 @@ namespace sarspec_usb {
         int status;
         unsigned char bufStartScan[] = { 0x02, 0x00 };
         unsigned char bufStartScanExt[] = { 0x10, 0, 0, 0, 1 };
+        unsigned char bufEndScanExt[] = {0x12};
         unsigned char incomingBufs[nr][8192];
         uint32_t bytesRead;
         timespec instants[nr * 2];
+        timespec start;
         yDataS.clear();
 
         //First acquisition using external trigger
         if (extTrigger) {
 
-            ftdi_tcioflush(ftdi_dev);
-            
-            clock_gettime(CLOCK_MONOTONIC, &instants[0]);
+            ftdi_tcioflush(ftdi_dev);    
+            usleep(5e2); // wait for flush, external triggering during this time may cause some data to be overwritten
+
+            clock_gettime(CLOCK_MONOTONIC, &start);
 
             status = ftdi_write_data(ftdi_dev, bufStartScanExt, 5);
-            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[0], L << 1);
+
+            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[0], L << 1);            
             ftdi_transfer_data_done(tc);
 
-            clock_gettime(CLOCK_MONOTONIC, &instants[1]);
+            ftdi_tcioflush(ftdi_dev);
+
+            clock_gettime(CLOCK_MONOTONIC, &instants[0]); //in the ext trigger case the time at instant[2] (start of 2nd acquisition)
+                                                          //will always be greater than the time at instant[0] + tinterval
+                                                          //because the device waits for the trigger. This being the case we approximate
+                                                          //the time of triggering to the time after acquiring the first set of data so that
+                                                          //it waits tinterval ms until the 2nd acquisition otherwise it would be immediate 
         }
         //First acquisition using internal trigger
         else {
-
+            
             ftdi_tcioflush(ftdi_dev);
-
+            
             clock_gettime(CLOCK_MONOTONIC, &instants[0]);
+            clock_gettime(CLOCK_MONOTONIC, &start);
+
+            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[0], L << 1);
 
             status = ftdi_write_data(ftdi_dev, bufStartScan, 1);
-            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[0], L << 1);
+
             ftdi_transfer_data_done(tc);
+
+            ftdi_tcioflush(ftdi_dev);
 
             clock_gettime(CLOCK_MONOTONIC, &instants[1]);
         }
@@ -308,22 +330,23 @@ namespace sarspec_usb {
             while ((double)(timespecDiff(instants[i * 2 - 2], instants[i * 2]))/1e6 < tinterval) {
                 clock_gettime(CLOCK_MONOTONIC, &instants[i * 2]);
             }
+            
+            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[i], L << 1);
 
             status = ftdi_write_data(ftdi_dev, bufStartScan, 1);
-            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[i], L << 1);
+
             ftdi_transfer_data_done(tc);
+
+            ftdi_tcoflush(ftdi_dev);
 
             clock_gettime(CLOCK_MONOTONIC, &instants[i * 2 + 1]);
         }
-
-
-        ftdi_tcioflush(ftdi_dev);
 
         if (tc->size > 0) {
                 bytesRead = tc->size;
         }
         else {
-            std::vector<double> v(3648, 0.0);
+            std::vector<double> v(3649, 0.0);
             std::vector<std::vector<double>> V(nr, v);
             return V;
         }
@@ -345,12 +368,12 @@ namespace sarspec_usb {
                     temp.push_back(double(temp1[i]));
                 }
             }
-
+            temp.push_back((double)(timespecDiff(start, instants[j * 2]))/1e6);
             yDataS.push_back(temp);
         }
 
         for (int i = 1; i < nr; i++) {
-            printf("%u: %g ms, ", i, (double)(timespecDiff(instants[0], instants[i * 2]))/1e6);
+            printf("%u: %g ms, ", i, (double)(timespecDiff(start, instants[i * 2]))/1e6);
         }
         printf("\n");
         for (int i = 1; i < nr; i++) {

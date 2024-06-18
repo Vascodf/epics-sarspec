@@ -36,22 +36,22 @@ namespace sarspec_usb_test {
 
         x = teste.getXData(coeffs);
 
-        for (int i=0; i < 5; i++) {
-            std::cout << i << std::endl;
-            std::string filename = "data";
-            y = teste.getYDataSequence(true, aqNr, 50);
+        y = teste.getYDataSequence(true, aqNr, 50);
 
-            std::ofstream Data((filename + std::to_string(i) + ".txt").c_str());
+        std::ofstream Data("data.txt");
             
-            for (int j = 0; j < aqNr; j++) {
-                for (int i = 0; i < 3648; i++) {
-                    Data << y[j][i] << " ";
-                }
-                Data << "\n";
+        for (int j = 0; j < aqNr; j++) {
+
+            for (int k = 0; k < 3649; k++) {
+                Data << y[j][k] << " ";
+                //std::cout << y[j][k] << std::endl;
+            }
+
+            Data << "\n";
         }
     
         Data.close();
-        }
+
         //y = teste.getYDataSequence(true, 6, 30);
         //for (int i = 0; i<256; i++) {
         //

@@ -21,8 +21,9 @@
 /* These are the drvInfo strings that are used to identify the parameters.
  * They are used by asyn clients, including standard asyn device support */
 #define P_RunString                "SARSPEC_RUN"                /* asynInt32,    r/w */
-#define P_AcqNumberString                "SARSPEC_ACQ_NUMBER"         /* asynInt32,    r/w */
-#define P_AcqTimeGapString               "SARSPEC_ACQ_TIME_GAP"         /* asynInt32,    r/w */
+#define P_AcqNumberString          "SARSPEC_ACQ_NUMBER"         /* asynInt32,    r/w */
+#define P_AcqGraphString           "SARSPEC_ACQ_GRAPH"          /* asynInt32,    r/w */
+#define P_AcqTimeGapString         "SARSPEC_ACQ_TIME_GAP"       /* asynInt32,    r/w */
 #define P_ExtTriggerString         "SARSPEC_EXTERNAL_TRIGGER"   /* asynInt32,    r/w */
 #define P_Coeff0String             "SARSPEC_COEFF_0"            /* asynFloat64,  r/w */
 #define P_Coeff1String             "SARSPEC_COEFF_1"            /* asynFloat64,  r/w */
@@ -58,6 +59,7 @@ protected:
     /** Values used for pasynUser->reason, and indexes into the parameter library. */
     int P_Run;
     int P_AcqNumber;
+    int P_AcqGraph;
     int P_AcqTimeGap;
     int P_ExtTrigger;
     int P_Coeff0;
@@ -75,7 +77,8 @@ private:
     /* Our data */
     epicsEventId eventId_;
     double* pXData_;
-    double* pYData_;   
+    double* pYData_;
+    std::vector<std::vector<double>> rawYData_;
     double pCoeffs_[4];
     
     void setLed();
@@ -83,6 +86,7 @@ private:
     void setIntTime();
     void setCoeffs();
     void setTimeout();
+    void setGraph();
 
     void saveYData(std::vector<std::vector<double>> y);
     //void saveXData(std::vector<std::vector<double>> x);

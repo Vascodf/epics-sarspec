@@ -72,6 +72,7 @@ specAsynPortDriver::specAsynPortDriver(const char *portName) //MAX POINTS == 364
     createParam(P_RunString,                asynParamInt32,           &P_Run);
     createParam(P_AcqTimeGapString,         asynParamInt32,           &P_AcqTimeGap);
     createParam(P_AcqNumberString,          asynParamInt32,           &P_AcqNumber);
+    createParam(P_AcqGraphString,           asynParamInt32,           &P_AcqGraph);
     createParam(P_YDataString,              asynParamFloat64Array,    &P_YData);
     createParam(P_XDataString,              asynParamFloat64Array,    &P_XData);
     createParam(P_LedString,                asynParamInt32,           &P_Led);
@@ -92,11 +93,19 @@ specAsynPortDriver::specAsynPortDriver(const char *portName) //MAX POINTS == 364
     setIntegerParam(P_ExtTrigger,        0);
     setIntegerParam(P_AcqTimeGap,        30);
     setIntegerParam(P_AcqNumber,         1);
+    setIntegerParam(P_AcqGraph,          1);
     setIntegerParam(P_Timeout,           100);
     setDoubleParam(P_Coeff0,             0.0);    
     setDoubleParam(P_Coeff1,             1.0);
     setDoubleParam(P_Coeff2,             0.0);
     setDoubleParam(P_Coeff3,             0.0);
+
+    epicsInt32 nr;
+    getIntegerParam(P_AcqNumber, &nr);
+
+    std::vector<double> v(3648, 0.0);
+    std::vector<std::vector<double>> V(nr, v);
+    rawYData_ = V;
 
     /* Create the thread that computes the waveforms in the background */
     status = (asynStatus)(epicsThreadCreate("specAsynPortDriverTask",
@@ -144,15 +153,15 @@ void specAsynPortDriver::acquireTask(void)
         /* run could have changed while we were waiting */
         getIntegerParam(P_Run, &run);
         if (!run) continue;
-    
+        rawYData_.clear();
+        setIntegerParam(P_Run, 0);
+
         getIntegerParam(P_ExtTrigger, &ext);
         getIntegerParam(P_AcqTimeGap, &tinterval);
         getIntegerParam(P_AcqNumber, &nr);
-        std::vector<std::vector<double>> temp = specDev.getYDataSequence(ext, nr, tinterval);
-        saveYData(temp);
-        for (int i=0; i<3648; i++) {pYData_[i] = temp[0][i];}
-
-        setIntegerParam(P_Run, 0);
+        rawYData_ = specDev.getYDataSequence(ext, nr, tinterval);
+        saveYData(rawYData_);
+        setGraph();
 
         updateTimeStamp();
         callParamCallbacks();
@@ -171,13 +180,13 @@ asynStatus specAsynPortDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
     asynStatus status = asynSuccess;
     const char *paramName;
     const char* functionName = "writeInt32";
-
+    
     /* Set the parameter in the parameter library. */
     status = (asynStatus) setIntegerParam(function, value);
 
     /* Fetch the parameter string name for possible use in debugging */
     getParamName(function, &paramName);
-
+    
     if (function == P_Run) {
         /* If run was set then wake up the simulation task */
         if (value) epicsEventSignal(eventId_);
@@ -190,6 +199,9 @@ asynStatus specAsynPortDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
     }
     else if (function == P_IntTime) {
         setIntTime();
+    }
+    else if (function == P_AcqGraph) {
+        setGraph();
     }
     else {
         /* All other parameters just get set in parameter list, no need to
@@ -302,6 +314,13 @@ void specAsynPortDriver::setGain()
     epicsInt32 gain;
 
     getIntegerParam(P_Gain, &gain);
+    
+    if (gain > 499)
+        gain = 499;
+
+    if (gain < 1)
+        gain = 1;
+
     printf("Set gain to: %u\n", gain);
     specDev.setDeviceGain(gain);
 }
@@ -311,8 +330,15 @@ void specAsynPortDriver::setIntTime()
     epicsInt32 intTime;
 
     getIntegerParam(P_IntTime, &intTime);
-    printf("Set itime to: %u\n", intTime);
+    
 
+    if (intTime > 2000)
+        intTime = 2000;
+
+    if (intTime < 4)
+        intTime = 4;
+
+    printf("Set itime to: %u\n", intTime);
     specDev.setIntegrationTime(intTime);
 }
 
@@ -330,9 +356,8 @@ void specAsynPortDriver::setCoeffs()
     pCoeffs_[2] = c2;
     pCoeffs_[3] = c3;
 
-    //printf("0: %g 1: %g 2: %g 3: %g\n", pCoeffs_[0], pCoeffs_[1], pCoeffs_[2], pCoeffs_[3]);
     std::vector<double> temp = specDev.getXData(pCoeffs_);
-    for (int i=0; i<3648; i++) {pXData_[i] = temp[i]; /*printf("%u   %g\n", i, temp[i]);*/}
+    for (int i=0; i<3648; i++) {pXData_[i] = temp[i];}
         
     doCallbacksFloat64Array(pXData_, 3648, P_XData, 0);
 }
@@ -360,6 +385,21 @@ void specAsynPortDriver::saveYData(std::vector<std::vector<double>> y)
     }
 
     Data.close();
+}
+
+void specAsynPortDriver::setGraph()
+{
+    epicsInt32 graph;
+    getIntegerParam(P_AcqGraph, &graph);
+
+    if (graph > rawYData_.size())
+        graph = rawYData_.size();
+
+    if (graph < 1)
+        graph = 1;
+
+    for (int i=0; i<3648; i++) {pYData_[i] = rawYData_[graph - 1][i];}
+    doCallbacksFloat64Array(pYData_, 3648, P_YData, 0);
 }
 /* Configuration routine.  Called directly, or from the iocsh function below */
 

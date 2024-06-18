@@ -32,6 +32,13 @@ record(longout, "$(P)$(R)AcqNumber")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_ACQ_NUMBER")
 }
 
+record(longout, "$(P)$(R)AcqGraph")
+{
+   field(PINI, "1")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_ACQ_GRAPH")
+}
+
 record(waveform, "$(P)$(R)YData")
 {
     field(DTYP, "asynFloat64ArrayIn")
