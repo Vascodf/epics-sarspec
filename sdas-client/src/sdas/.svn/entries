@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="236"
+   name=""
+   committed-date="2007-11-04T20:58:44.630627Z"
+   url="svn://baco.cfn.ist.utl.pt/sdas/trunk/cpp/src/sdas"
+   last-author="andre"
+   kind="dir"
+   uuid="c61eafe3-7d0b-0410-bedc-b9dc0006ef17"
+   repos="svn://baco.cfn.ist.utl.pt/sdas"
+   revision="259"/>
+<entry
+   committed-rev="236"
+   name="Time.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="1f043ff412b35c68a5130cc13c8df29f"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="SdasClient.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="91ee571e5bd9a58eabd05853c1f2ce9b"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="HEvent.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="6965fdc4c646c58ea9943eb3aa834768"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="TimeStamp.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="32e2f38504690b956e3cf1d829ac7600"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Time.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="b9252297a80de9e6c7793f862a03bd80"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="SEvent.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="53c11c1544f9e52fd286bef2277d1724"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="TimeStamp.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="2c89f66b4870736dd7ceaebb46a1c9db"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Data.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="587a0bb6c8b1582011e07ebf8119a0cb"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="SEvent.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="51431d9b9bc98a2f19b86a5b1d54b992"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Date.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="b39e92f7a43144b222c2a1ba63037b84"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Data.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="c1201fa99ee4e211bfd23cfe2093e9e9"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Descriptor.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="dac9c22af61eb217de0f415487a71a5d"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="DescriptorUID.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="c4302a7bebce321f39a3802ec6bf8e33"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Parameter.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="a1f465547f9fc5e79f9bbb722dabe98f"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Event.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="58e934648f57ceb867b5f7bc29aae12b"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Date.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="8e9585c46451027e9c9b5e8e8703fc9b"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Descriptor.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="0ddf604b29fabb6e89e87e78e81166f4"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="main.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="5bb0e4870f31196a0365b8eee2edd49d"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Parameter.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="44b0c80bf1d4aacb0a97b5a522bc1ae7"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="DescriptorUID.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="3697a00ab40ca9d0d23a0f89c9992a82"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Event.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="2332911aba1764b6135bd616a9585ae5"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="HEvent.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="5111ae7d6e936cbfc2ad98e206210b50"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="SdasClient.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="545488eb448fc4de504f240bba345ed7"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+</wc-entries>

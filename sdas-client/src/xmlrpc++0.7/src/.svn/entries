@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="234"
+   name=""
+   committed-date="2007-11-04T20:32:11.482721Z"
+   url="svn://baco.cfn.ist.utl.pt/sdas/trunk/cpp/src/xmlrpc++0.7/src"
+   last-author="andre"
+   kind="dir"
+   uuid="c61eafe3-7d0b-0410-bedc-b9dc0006ef17"
+   repos="svn://baco.cfn.ist.utl.pt/sdas"
+   revision="259"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcServer.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="97e9c689d54ff8b17cb41580e635851b"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcValue.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="d5a91ad864a441cd1cfcd261f2b42a16"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="Doxyfile"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="181c01a0b0e27c465d90f20d85baafdb"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcServerMethod.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="34572de5d785ba75947142f0fd9c5b2b"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcUtil.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="3e8b57a5499ba3102714be692d50c345"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcClient.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="aa0f52b2bd0a498bbafb94c1131397e9"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcValue.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="7316a8c7e6c03435b1873fa734fb36c1"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcUtil.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="fe11b403f5794526c774899f75a48f53"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcClient.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="990432dc3dcf341cabb56636264919cb"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpc.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="b6ed24fe3d566761b251a806a4eadd6e"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcServerConnection.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="b5d824cbf90f121f501135df864e9702"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcSocket.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="49e8ad709aa4cced87f6d5111e9b50a9"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcServerConnection.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="3bc481e214fa0c18ad9fa060c226541e"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcSocket.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="73013875278760032fa18e73e6974743"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcDispatch.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="fb05af70289ce6de92ac5ecbe193646b"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcSource.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="228b07eb3dd7870245b6cd8e637b1ce2"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcException.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="81f27c4eba5ceba1bc77cbcfe162d778"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="base64.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="35bdb49378a3a4400f0663611cdd61be"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcDispatch.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="d4e6cc6d4f249fe8634b5a2400b4fa02"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcSource.h"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="2f01ff8863cb97a200f985fa992c651d"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcServer.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="f148aebdff3acd92978e5818d0c16f97"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpcServerMethod.cpp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="ed0cce64108be94d02a19845c02c1890"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+</wc-entries>

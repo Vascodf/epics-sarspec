@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="236"
+   name=""
+   committed-date="2007-11-04T20:58:44.630627Z"
+   url="svn://baco.cfn.ist.utl.pt/sdas/trunk/cpp/src/xmlrpc++0.7"
+   last-author="andre"
+   kind="dir"
+   uuid="c61eafe3-7d0b-0410-bedc-b9dc0006ef17"
+   repos="svn://baco.cfn.ist.utl.pt/sdas"
+   revision="259"/>
+<entry
+   committed-rev="234"
+   name="README.html"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="076dbecfdefb06c08ecf211e8ec2dd79"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="XmlRpc.sln"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="b361c057411750d325d3bec817e29464"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="xmlrpc.dsw"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="2262e46ca2e8a8eaa0b1d945a458fafd"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   name="src"
+   kind="dir"/>
+<entry
+   committed-rev="234"
+   name="XmlRpc.vcproj"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="ec5112787463c0c2ca5bca1cb212ec5e"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="COPYING"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="7fbc338309ac38fefcd64b04bb903e34"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name="xmlrpc.dsp"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="6868fb9afa9c93513773cf7c46a4e4a9"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="234"
+   name=".cvsignore"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:32:11.482721Z"
+   checksum="930a616bc82806afffe1bbc335dc08bc"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+<entry
+   committed-rev="236"
+   name="Makefile"
+   text-time="2008-09-16T10:36:05.000000Z"
+   committed-date="2007-11-04T20:58:44.630627Z"
+   checksum="c1dd387dd106695d080c04aae8951964"
+   last-author="andre"
+   kind="file"
+   prop-time="2008-09-16T10:36:05.000000Z"/>
+</wc-entries>

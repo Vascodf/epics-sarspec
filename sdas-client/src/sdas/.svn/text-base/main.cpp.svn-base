@@ -1,0 +1,167 @@
+/*
+ * main.cpp
+ * SDAS Test Program
+ *
+ * Created on April 1, 2006, 00:00 AM
+ *
+ * <p>Title: SDAS</p>
+ *
+ * <p>Description: Shared Data Access System</p>
+ *
+ * <p>Copyright: (C) Copyright 2005-2006, by Centro de Fusao Nuclear
+ *
+ * Project Info:  	http://baco.cfn.ist.utl.pt/sdas
+ *                      http://www.cfn.ist.utl.pt
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
+ * in the United States and other countries.]
+ * </p>
+ *
+ * <p>Company: CFN - EURATOM/IST- http://www.cfn.ist.utl.pt</p>
+ *
+ * Author: Daniel Filipe Valcarcel
+ * Version: 1.0.0
+ *
+ */
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+#include <stdio.h>
+
+#include "SdasClient.h"
+
+using namespace std;
+using namespace org::sdas::core::client;
+
+int main()
+{
+	fstream out("data.txt", ios::out);
+
+	//
+	// Application Presentation
+	//
+	cout << "SDAS C++ Library Test Application" << endl;
+	cout << "April 1, 2006" << endl;
+	cout << "Daniel F. Valcarcel" << endl << endl;
+
+	//
+	// Create a connection to the SDAS server
+	//
+	SdasClient *client;
+	client = new SdasClient("baco.cfn.ist.utl.pt", 8888);
+
+	//
+	// Search for the descriptor of a shot
+	//
+	vector<DescriptorUID> descriptors = client->searchDeclaredEventsByName("SSHOT");
+	cout << " --> Found " << descriptors.size() << " descriptor(s) for SSHOT:" << endl;
+	for(unsigned int i = 0 ; i < descriptors.size() ; i++)
+	{
+		DescriptorUID descriptor = descriptors[i];
+		cout << "       Unique ID[" << i << "]: " << descriptor.getUniqueID() << endl;
+		cout << "            Name[" << i << "]: " << descriptor.getName() << endl;
+		cout << "     Description[" << i << "]: " << descriptor.getDescription() << endl;
+		cout << "          Locale[" << i << "]: " << descriptor.getLocale() << endl << endl;
+	}
+
+	//
+	// Search for the minimum and maximum event number for a shot
+	//
+	int minShotNumber = client->searchMinEventNumber("0x0000");
+	int maxShotNumber = client->searchMaxEventNumber("0x0000");
+	int shotNumber = -1;
+	while((shotNumber < minShotNumber) || (shotNumber > maxShotNumber))
+	{
+		cout << "Shot number to retrieve (" << minShotNumber << "-" << maxShotNumber << "): ";
+		cin >> shotNumber;
+	}
+
+	//
+	// Get the selected shot
+	//
+	vector<HEvent> events = client->searchEventsByEventNumber(shotNumber);
+	cout << " --> Found " << events.size() << " event(s) for shot " << shotNumber << ":" << endl;
+	for(int i = 0 ; i < events.size() ; i++)
+	{
+		cout << "        Unique ID[" << i << "]: " << events[i].getUniqueID() << endl;
+		cout << "     Event Number[" << i << "]: " << events[i].getEventNumber() << endl;
+		cout << "             Date[" << i << "]: " << events[i].getTimeStamp().getDate().toString() << endl;
+		cout << "             Time[" << i << "]: " << events[i].getTimeStamp().getTime().toString() << endl;
+	}
+	cout << endl;
+
+	//
+	// Select the event to fetch from the database
+	//
+	int eventToGet = -1;
+	while((eventToGet < 0) || (eventToGet > events.size() - 1))
+	{
+		cout << "Event to get (0-" << (events.size() - 1) << "): ";
+		cin >> eventToGet;
+	}
+
+	//
+	// Get the available parameters for the selected event
+	//
+	vector<string> parameterId = client->searchDataByEvent(events[eventToGet]);
+	vector<string> parametersToGet;
+	int parameterToGet = -2;
+	while(true)
+	{
+		cout << " --> Found " << parameterId.size() << " parameters(s) for shot " << shotNumber << ":" << endl;
+		for(int i = 0 ; i < parameterId.size() ; i++)
+			cout << "     " << (i + 1) << ". " << parameterId[i] << endl;
+		cout << "Parameter to fetch (0->all, -1->end): ";
+		cin >> parameterToGet;
+		cout << endl;
+		if(parameterToGet == 0)
+		{
+			parametersToGet = parameterId;
+			break;
+		}
+		if(parameterToGet == -1)
+			break;
+		parametersToGet.push_back(parameterId[parameterToGet - 1]);
+	}
+
+	//
+	// Get the selected data and write it to file
+	//
+	for(int i = 0 ; i < parametersToGet.size() ; i++)
+	{
+		Data retrievedData = client->getData(parametersToGet[i], events[eventToGet]);
+		cout << "Mime Type " << i << ": " << retrievedData.getMimeType() << endl;
+
+		char num[20];
+		sprintf(num, "%d", events[eventToGet].getEventNumber());
+		string filename = "";
+		filename += num;
+		filename += "-" + parametersToGet[i] + ".txt";
+		fstream out(filename.c_str(), ios::out);
+		out << "Start Time: " << retrievedData.getTimeStart().toString() << endl;
+		out << "End Time: " << retrievedData.getTimeEnd().toString() << endl;
+		vector<float> data = retrievedData.getFloat32Data();
+		for(int j = 0 ; j < data.size() ; j++)
+			out << data[j] << endl;
+		out.close();
+	}
+
+	return 0;
+}
+

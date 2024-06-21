@@ -1,0 +1,42 @@
+# makefile written for gnu make
+CXX		= g++
+SRC		= ./src/
+CPPFLAGS	= -I$(SRC)
+DEBUG		= 
+OPTIMIZE	= -O2
+GCCWARN		= -Wall
+CXXFLAGS	= $(DEBUG) $(GCCWARN) $(OPTIMIZE) $(INCLUDES)
+BUILD_DIR	= ../../build/
+
+LIB		= libXmlRpc.a
+LIB_SHARED	= libXmlRpc.so
+
+# Add your system-dependent network libs here. These are
+# only used to build the tests (your application will need them too).
+# Linux: none
+# Solaris: -lsocket -lnsl
+#SYSTEMLIBS	= -lsocket -lnsl
+SYSTEMLIBS	=
+LDLIBS		= $(LIB) $(SYSTEMLIBS)
+
+OBJS		= $(BUILD_DIR)XmlRpcClient.o $(BUILD_DIR)XmlRpcDispatch.o \
+		$(BUILD_DIR)XmlRpcServer.o $(BUILD_DIR)XmlRpcServerConnection.o \
+		$(BUILD_DIR)XmlRpcServerMethod.o $(BUILD_DIR)XmlRpcSocket.o $(BUILD_DIR)XmlRpcSource.o \
+		$(BUILD_DIR)XmlRpcUtil.o $(BUILD_DIR)XmlRpcValue.o
+
+$(BUILD_DIR)%.o : $(SRC)%.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(SRC)$*.cpp -o $(BUILD_DIR)$*.o
+
+all:		$(LIB) $(LIB_SHARED)
+
+$(LIB):		$(OBJS)
+		ld -r $(OBJS) -o $(BUILD_DIR)$(LIB)
+
+$(LIB_SHARED):
+		$(CXX) -shared $(OBJS) -o $(BUILD_DIR)$(LIB_SHARED)
+
+clean:
+	rm -f $(OBJS)
+	rm -f $(BUILD_DIR)$(LIB)
+	rm -f $(BUILD_DIR)$(LIB_SHARED)
+

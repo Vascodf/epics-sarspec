@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="236"
+   name=""
+   committed-date="2007-11-04T20:58:44.630627Z"
+   url="svn://baco.cfn.ist.utl.pt/sdas/trunk/cpp/src"
+   last-author="andre"
+   kind="dir"
+   uuid="c61eafe3-7d0b-0410-bedc-b9dc0006ef17"
+   repos="svn://baco.cfn.ist.utl.pt/sdas"
+   revision="259"/>
+<entry
+   name="xmlrpc++0.7"
+   kind="dir"/>
+<entry
+   name="sdas"
+   kind="dir"/>
+</wc-entries>

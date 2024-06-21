@@ -1,0 +1,154 @@
+/*
+ * SdasClient.h
+ *
+ * Created on March 1, 2006, 00:00 AM
+ *
+ * <p>Title: SDAS</p>
+ *
+ * <p>Description: Shared Data Access System</p>
+ *
+ * <p>Copyright: (C) Copyright 2005-2006, by Centro de Fusao Nuclear
+ *
+ * Project Info:  	http://baco.cfn.ist.utl.pt/sdas
+ *                      http://www.cfn.ist.utl.pt
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
+ * in the United States and other countries.]
+ * </p>
+ *
+ * <p>Company: CFN - EURATOM/IST- http://www.cfn.ist.utl.pt</p>
+ *
+ * Author: Daniel Filipe Valcarcel
+ * Version: 1.0.0
+ *
+ */
+
+#ifndef __SDASCLIENT_H__
+#define __SDASCLIENT_H__
+
+#include <string>
+#include "XmlRpc.h"
+
+#include "Date.h"
+#include "Time.h"
+#include "TimeStamp.h"
+#include "DescriptorUID.h"
+#include "HEvent.h"
+#include "Parameter.h"
+#include "Data.h"
+
+using namespace std;
+using namespace XmlRpc;
+using namespace org::sdas::core::time;
+using namespace org::sdas::core::utils;
+using namespace org::sdas::core::common;
+
+namespace org
+{
+	namespace sdas
+	{
+		namespace core
+		{
+			namespace client
+			{
+
+				class SdasClient
+				{
+					private:
+						XmlRpcClient *client;
+
+					public:
+						SdasClient(string hostname, int port);
+
+					public:
+						~SdasClient(void);
+
+					//
+					// Conversion Functions
+					//
+					private:
+						XmlRpcValue createXmlRpcValueFromDate(Date date);
+						XmlRpcValue createXmlRpcValueFromTime(Time time);
+						XmlRpcValue createXmlRpcValueFromTimeStamp(TimeStamp tstamp);
+						XmlRpcValue createXmlRpcValueFromHEvent(HEvent hevent);
+						XmlRpcValue createXmlRpcValueFromData(Data data);
+						Date createDateStructureFromXmlRpcValue(XmlRpcValue rpcValue);
+						Time createTimeStructureFromXmlRpcValue(XmlRpcValue rpcValue);
+						TimeStamp createTimeStampStructureFromXmlRpcValue(XmlRpcValue rpcValue);
+						DescriptorUID createDescriptorUidStructureFromXmlRpcValue(XmlRpcValue rpcValue);
+						HEvent createHEventStructureFromXmlRpcValue(XmlRpcValue rpcValue);
+						Parameter createParameterStructureFromXmlRpcValue(XmlRpcValue rpcValue);
+						Data createDataStructureFromXmlRpcValue(XmlRpcValue rpcValue);
+
+					//
+					// Event Search
+					//
+					public:
+						vector<DescriptorUID> searchDeclaredEventsByUniqueID(string uniqueID);
+						vector<DescriptorUID> searchDeclaredEventsByName(string name);
+						vector<DescriptorUID> searchDeclaredEventsByName(string name, string locale);
+						vector<DescriptorUID> searchDeclaredEventsByDescription(string description);
+						vector<DescriptorUID> searchDeclaredEventsByDescription(string description, string locale);
+						vector<HEvent> searchEventsByEventNumber(int number);
+						vector<HEvent> searchEventsByEventTimeWindow(TimeStamp from, TimeStamp to);
+						int searchMaxEventNumber(string eventUniqueID);
+						int searchMinEventNumber(string eventUniqueID);
+
+					//
+					// Parameter Search
+					//
+					public:
+						vector<Parameter> searchParametersByUniqueID(string uniqueID);
+						vector<Parameter> searchParametersByName(string name);
+						vector<Parameter> searchParametersByName(string name, string locale);
+						vector<Parameter> searchParametersByDescription(string description);
+						vector<Parameter> searchParametersByDescription(string description, string locale);
+
+					//
+					// Data Search
+					//
+					public:
+						vector<string> searchDataByEvent(HEvent hevent);
+						vector<string> searchDataByEvent(string eventUniqueID, int eventNumber);
+
+					//
+					// Data Retrieving
+					//
+					Data getData(string parameterUniqueID, string eventUniqueID, int eventNumber);
+					Data getData(string parameterUniqueID, HEvent hevent);
+					vector<Data> getMultipleData(vector<string> parameterUniqueID, vector<string> eventUniqueID, vector<int> eventNumber);
+					vector<Data> getMultipleData(vector<string> parameterUniqueID, vector<HEvent> hevent);
+					vector<Data> getMultipleData(vector<string> parameterUniqueID, HEvent hevent);
+					vector<Data> getMultipleData(vector<string> parameterUniqueID, string eventUniqueID, int eventNumber);
+					vector<Data> getMultipleData(string parameterUniqueID, vector<string> eventUniqueID, vector<int> eventNumber);
+					vector<Data> getMultipleData(string parameterUniqueID, string eventUniqueID, vector<int> eventNumber);
+
+					//
+					// User Data
+					//
+					bool createNewDataStructure(string structure_name, vector<string> parameters);
+					bool removeDataStructure(string structure_name);
+					bool putData(vector<Data> data);
+				};
+
+			} // client
+		} // core
+	} // sdas
+} // org
+
+#endif
+
