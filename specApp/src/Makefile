@@ -21,6 +21,7 @@ specSupport_SRCS += specAsynPortDriver.cpp
 specSupport_LIBS += $(EPICS_BASE_IOC_LIBS)
 specSupport_LIBS += asyn
 specSupport_LIBS += sarspec
+specSupport_LIBS += sdas-client
 
 # Auto-generate a header file containing a version string.
 # Version comes from the VCS if available, else date+time.
