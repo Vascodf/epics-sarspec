@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Saved on 2024-06-21 17:38:27 by mailv-->
+<display version="2.0.0">
+  <name>Display</name>
+  <widget type="rectangle" version="2.0.0">
+    <name>Rectangle_1</name>
+    <width>770</width>
+    <height>660</height>
+    <line_color>
+      <color name="Transparent" red="255" green="255" blue="255" alpha="0">
+      </color>
+    </line_color>
+    <background_color>
+      <color name="Background" red="255" green="255" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Rectangle</name>
+    <x>500</x>
+    <y>200</y>
+    <width>270</width>
+    <height>240</height>
+    <line_color>
+      <color name="Transparent" red="255" green="255" blue="255" alpha="0">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="230" green="230" blue="230">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <class>TITLE</class>
+    <text>Sarspec RES+ spectrometer</text>
+    <x use_class="true">0</x>
+    <y use_class="true">0</y>
+    <width>320</width>
+    <height>31</height>
+    <font use_class="true">
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color name="Transparent" red="255" green="255" blue="255" alpha="0">
+      </color>
+    </background_color>
+    <transparent use_class="true">true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <text>LED</text>
+    <x>310</x>
+    <y>53</y>
+    <width>40</width>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>Boolean Button</name>
+    <pv_name>ISTTOK:sarspec:Led</pv_name>
+    <x>370</x>
+    <y>47</y>
+    <off_color>
+      <color name="Off" red="60" green="100" blue="60">
+      </color>
+    </off_color>
+    <on_color>
+      <color name="On" red="0" green="255" blue="0">
+      </color>
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <text>Wavelength coefficients</text>
+    <x>20</x>
+    <y>130</y>
+    <width>510</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <text>Integration time (ms)</text>
+    <x>20</x>
+    <y>94</y>
+    <width>140</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <text>Gain</text>
+    <x>20</x>
+    <y>55</y>
+    <width>30</width>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_4</name>
+    <pv_name>ISTTOK:sarspec:IntegrationTime</pv_name>
+    <x>170</x>
+    <y>94</y>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_5</name>
+    <pv_name>ISTTOK:sarspec:Gain</pv_name>
+    <x>170</x>
+    <y>53</y>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_7</name>
+    <pv_name>ISTTOK:sarspec:AcqNumber</pv_name>
+    <x>650</x>
+    <y>270</y>
+    <actions execute_as_one="true">
+    </actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <text>Nr. of Acquisitions</text>
+    <x>520</x>
+    <y>270</y>
+    <width>120</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_12</name>
+    <text>Acquisition time gap</text>
+    <x>520</x>
+    <y>310</y>
+    <width>130</width>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_8</name>
+    <pv_name>ISTTOK:sarspec:AcqTimeGap</pv_name>
+    <x>650</x>
+    <y>310</y>
+  </widget>
+  <widget type="xyplot" version="3.0.0">
+    <name>X/Y Plot</name>
+    <x>10</x>
+    <y>190</y>
+    <width>480</width>
+    <height>410</height>
+    <x_axis>
+      <title>Wavelength</title>
+      <autoscale>true</autoscale>
+      <log_scale>false</log_scale>
+      <minimum>0.0</minimum>
+      <maximum>100.0</maximum>
+      <show_grid>false</show_grid>
+      <title_font>
+        <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+        </font>
+      </title_font>
+      <scale_font>
+        <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+        </font>
+      </scale_font>
+      <visible>true</visible>
+    </x_axis>
+    <y_axes>
+      <y_axis>
+        <title>I</title>
+        <autoscale>true</autoscale>
+        <log_scale>false</log_scale>
+        <minimum>0.0</minimum>
+        <maximum>100.0</maximum>
+        <show_grid>false</show_grid>
+        <title_font>
+          <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+          </font>
+        </title_font>
+        <scale_font>
+          <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+          </font>
+        </scale_font>
+        <on_right>false</on_right>
+        <visible>true</visible>
+        <color>
+          <color name="Text" red="0" green="0" blue="0">
+          </color>
+        </color>
+      </y_axis>
+    </y_axes>
+    <traces>
+      <trace>
+        <name></name>
+        <x_pv>ISTTOK:sarspec:XData</x_pv>
+        <y_pv>ISTTOK:sarspec:YData</y_pv>
+        <err_pv></err_pv>
+        <axis>0</axis>
+        <trace_type>1</trace_type>
+        <color>
+          <color red="0" green="0" blue="255">
+          </color>
+        </color>
+        <line_width>1</line_width>
+        <line_style>0</line_style>
+        <point_type>0</point_type>
+        <point_size>10</point_size>
+        <visible>true</visible>
+      </trace>
+    </traces>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_13</name>
+    <text>Acquisition graph nr</text>
+    <x>40</x>
+    <y>630</y>
+    <width>130</width>
+  </widget>
+  <widget type="scrollbar" version="2.0.0">
+    <name>Scrollbar</name>
+    <pv_name>ISTTOK:sarspec:AcqGraph</pv_name>
+    <x>40</x>
+    <y>600</y>
+    <width>450</width>
+    <scripts>
+      <script file="EmbeddedPy" check_connections="false">
+        <text><![CDATA[## Script for Rule: Max
+
+from org.csstudio.display.builder.runtime.script import PVUtil
+from java import lang
+
+## Process variable extraction
+## Use any of the following valid variable names in an expression:
+##     pv0
+##     pvInt0
+##     pvStr0
+##     pvSev0
+##     pvLegacySev0  [DEPRECATED]
+
+
+try:
+
+## Script Body
+
+	pvInt0 = PVUtil.getLong(pvs[1])
+	
+	if pvInt0 == 1:
+		widget.setPropertyValue('maximum', 1.5)
+	else:
+		widget.setPropertyValue('maximum', pvInt0)
+
+	pvs[2].write(1)
+
+except (Exception, lang.Exception) as e:
+    widget.setPropertyValue('maximum', pvInt0)
+    if not isinstance(e, PVUtil.PVHasNoValueException):
+        raise e
+]]></text>
+        <pv_name>ISTTOK:sarspec:Run_RBV</pv_name>
+        <pv_name trigger="false">ISTTOK:sarspec:AcqNumber</pv_name>
+        <pv_name trigger="false">ISTTOK:sarspec:AcqGraph</pv_name>
+      </script>
+    </scripts>
+    <minimum>1.0</minimum>
+    <maximum>1.5</maximum>
+    <limits_from_pv>false</limits_from_pv>
+    <bar_length>0.5</bar_length>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update</name>
+    <pv_name>ISTTOK:sarspec:AcqGraph</pv_name>
+    <x>180</x>
+    <y>630</y>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button</name>
+    <actions execute_as_one="true">
+      <action type="write_pv">
+        <pv_name>loc://Run_loc&lt;VLong&gt;(0)</pv_name>
+        <value>1</value>
+        <description>WritePV</description>
+      </action>
+    </actions>
+    <pv_name>ISTTOK:sarspec:Run</pv_name>
+    <text>Ready</text>
+    <x>610</x>
+    <y>390</y>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+from org.csstudio.display.builder.runtime.script import PVUtil, ScriptUtil
+print 'Hello'
+# widget.setPropertyValue('text', PVUtil.getString(pvs[0]))
+
+if PVUtil.getLong(pvs[2]) == 0:
+	pvs[0].write(1)
+]]></text>
+        <pv_name trigger="false">ISTTOK:sarspec:Run</pv_name>
+        <pv_name>loc://Run_loc</pv_name>
+        <pv_name trigger="false">ISTTOK:sarspec:Run_RBV</pv_name>
+      </script>
+    </scripts>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>LED_1</name>
+    <pv_name>ISTTOK:sarspec:Run_RBV</pv_name>
+    <x>720</x>
+    <y>396</y>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>Boolean Button_1</name>
+    <pv_name>ISTTOK:sarspec:ExternalTrigger</pv_name>
+    <x>650</x>
+    <y>220</y>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <text>External Trigger</text>
+    <x>520</x>
+    <y>226</y>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <text>(Internal trigger only)</text>
+    <x>520</x>
+    <y>330</y>
+    <width>120</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="10.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_1</name>
+    <pv_name>ISTTOK:sarspec:C1</pv_name>
+    <x>180</x>
+    <y>150</y>
+    <width>60</width>
+    <format>1</format>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_2</name>
+    <pv_name>ISTTOK:sarspec:C2</pv_name>
+    <x>290</x>
+    <y>150</y>
+    <width>60</width>
+    <format>1</format>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_3</name>
+    <pv_name>ISTTOK:sarspec:C3</pv_name>
+    <x>400</x>
+    <y>150</y>
+    <width>60</width>
+    <format>1</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <text>C3</text>
+    <x>370</x>
+    <y>150</y>
+    <width>21</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <text>C2</text>
+    <x>260</x>
+    <y>150</y>
+    <width>21</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <text>C1</text>
+    <x>150</x>
+    <y>150</y>
+    <width>21</width>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <pv_name>ISTTOK:sarspec:C0</pv_name>
+    <x>70</x>
+    <y>150</y>
+    <width>60</width>
+    <format>1</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <text>C0</text>
+    <x>40</x>
+    <y>150</y>
+    <width>21</width>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>Boolean Button_2</name>
+    <pv_name>ISTTOK:sarspec:Save</pv_name>
+    <x>650</x>
+    <y>350</y>
+    <off_color>
+      <color name="Off" red="60" green="100" blue="60">
+      </color>
+    </off_color>
+    <on_color>
+      <color name="On" red="0" green="255" blue="0">
+      </color>
+    </on_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_15</name>
+    <text>Save to database</text>
+    <x>520</x>
+    <y>356</y>
+    <width>130</width>
+  </widget>
+</display>
