@@ -18,6 +18,10 @@
 #include <errno.h>
 #include <math.h>
 #include <fstream>
+#include <map>
+#include <iostream>
+
+#include "SdasClient.h"
 
 #include <epicsTypes.h>
 #include <epicsTime.h>
@@ -79,7 +83,7 @@ specAsynPortDriver::specAsynPortDriver(const char *portName) //MAX POINTS == 364
     createParam(P_GainString,               asynParamInt32,           &P_Gain);
     createParam(P_IntTimeString,            asynParamInt32,           &P_IntTime);
     createParam(P_ExtTriggerString,         asynParamInt32,           &P_ExtTrigger);
-    createParam(P_TimeoutString,            asynParamInt32,           &P_Timeout);
+    createParam(P_SaveString,                     asynParamInt32,           &P_Save);
     createParam(P_Coeff0String,             asynParamFloat64,         &P_Coeff0);
     createParam(P_Coeff1String,             asynParamFloat64,         &P_Coeff1);
     createParam(P_Coeff2String,             asynParamFloat64,         &P_Coeff2);
@@ -88,13 +92,13 @@ specAsynPortDriver::specAsynPortDriver(const char *portName) //MAX POINTS == 364
     /* Set the initial values of some parameters */
     setIntegerParam(P_Run,               0);
     setIntegerParam(P_Led,               0);
+    setIntegerParam(P_Save,              0);
     setIntegerParam(P_Gain,              1);
     setIntegerParam(P_IntTime,           10);
     setIntegerParam(P_ExtTrigger,        0);
     setIntegerParam(P_AcqTimeGap,        30);
     setIntegerParam(P_AcqNumber,         1);
     setIntegerParam(P_AcqGraph,          1);
-    setIntegerParam(P_Timeout,           100);
     setDoubleParam(P_Coeff0,             0.0);    
     setDoubleParam(P_Coeff1,             1.0);
     setDoubleParam(P_Coeff2,             0.0);
@@ -137,7 +141,7 @@ void specAsynPortDriver::acquireTask(void)
 {
     /* This thread computes the waveform and does callbacks with it */
 
-    epicsInt32 run, ext, nr, tinterval;
+    epicsInt32 run, ext, nr, tinterval, save;
     getIntegerParam(P_Run, &run);
     
     lock();
@@ -159,13 +163,18 @@ void specAsynPortDriver::acquireTask(void)
         getIntegerParam(P_ExtTrigger, &ext);
         getIntegerParam(P_AcqTimeGap, &tinterval);
         getIntegerParam(P_AcqNumber, &nr);
-        rawYData_ = specDev.getYDataSequence(ext, nr, tinterval);
-        saveYData(rawYData_);
+        
+        rawYData_ = specDev.getYDataSequence(ext, nr, tinterval); //sleep > pulse width - integration time - transfer time
+
+        getIntegerParam(P_Save, &save);
         setGraph();
 
         updateTimeStamp();
         callParamCallbacks();
         doCallbacksFloat64Array(pYData_, 3648, P_YData, 0);
+
+        if (save)
+            saveData(rawYData_, pCoeffs_);
     }
 }
 
@@ -362,29 +371,68 @@ void specAsynPortDriver::setCoeffs()
     doCallbacksFloat64Array(pXData_, 3648, P_XData, 0);
 }
 
-void specAsynPortDriver::setTimeout()
+
+void specAsynPortDriver::saveData(std::vector<std::vector<double>> y, double* coeffs)
 {
-    epicsInt32 to;
-    getIntegerParam(P_Timeout, &to);
-    specDev.setTimeout(to);
-}
 
-void specAsynPortDriver::saveYData(std::vector<std::vector<double>> y)
-{
-    int aqNr;
+    org::sdas::core::client::SdasClient* client;
+	client = new org::sdas::core::client::SdasClient("baco.ipfn.tecnico.ulisboa.pt", 8888, "pproc,ppr0c2TyWWefgvbg12");
 
-    getIntegerParam(P_AcqNumber, &aqNr);
+    int shotNumber = client->searchMaxEventNumber("0x0000");
 
-    std::ofstream Data("data.txt");
 
-        for (int j = 0; j < aqNr; j++) {
-            for (int i = 0; i < 3648; i++) {
-                Data << y[j][i] << " ";
-            }
-            Data << "\n";
+    std::vector<HEvent> events = client->searchEventsByEventNumber(shotNumber);
+    HEvent event = events[0];
+
+    TimeStamp tStart(event.getTimeStamp().getDate(), event.getTimeStamp().getTime());
+
+    Time acqTEnd = event.getTimeStamp().getTime();
+
+    epicsInt32 iTime;
+    getIntegerParam(P_IntTime, &iTime);
+
+    acqTEnd.setMillis(acqTEnd.getMillis()+iTime); //Esta so para a primeira p resto depende do firesignal
+
+    TimeStamp tEnd(event.getTimeStamp().getDate(), acqTEnd);
+
+    std::string parameterUniqueID = "POST.PROCESSED.TEST";
+
+    std::vector<char> rawData;
+
+    for(int i = 0; i < y.size(); i++) {
+
+        for(int j = 0; j < y[0].size() - 1; j++)
+        {
+            char *tmp = (char*)(&y[i][j]);
+
+            for(int k = 0; k < 8; k++)
+                rawData.push_back(tmp[7 - k]);
+        }
     }
 
-    Data.close();
+    Data dataToSend(parameterUniqueID, tStart, tEnd, "data/double_array", events, rawData);
+
+    std::map<string, string> xinfo;
+
+    epicsInt32 gain;
+    getIntegerParam(P_Gain, &gain);
+
+    std::string g = std::to_string(gain);
+    std::string t = std::to_string(iTime);
+
+    xinfo.insert({"Gain", g});
+    xinfo.insert({"Integration Time", t});
+    dataToSend.setExtraInfo(xinfo);
+
+    bool pexists = client->parameterExists(parameterUniqueID, event.getUniqueID(), event.getEventNumber());
+
+    if (pexists)
+    {
+        std::cout << "Parameter already exists. Exiting..." << std::endl;
+        return;
+    }
+
+    client->putData(dataToSend);
 }
 
 void specAsynPortDriver::setGraph()

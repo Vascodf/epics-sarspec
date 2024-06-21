@@ -34,7 +34,7 @@
 #define P_LedString                "SARSPEC_LED"                /* asynInt32,    r/w */
 #define P_GainString               "SARSPEC_GAIN"               /* asynInt32,    r/w */
 #define P_IntTimeString            "SARSPEC_INT_TIME"           /* asynInt32,    r/w */
-#define P_TimeoutString            "SARSPEC_TIMEOUT"            /* asynInt32,    r/w */
+#define P_SaveString               "SARSPEC_SAVE"               /* asynInt32,    r/w */
 
 /** Class that demonstrates the use of the asynPortDriver base class to greatly simplify the task
   * of writing an asyn port driver.
@@ -71,7 +71,7 @@ protected:
     int P_Led;
     int P_Gain;
     int P_IntTime;
-    int P_Timeout;
+    int P_Save;
 
 private:
     /* Our data */
@@ -88,7 +88,7 @@ private:
     void setTimeout();
     void setGraph();
 
-    void saveYData(std::vector<std::vector<double>> y);
-    //void saveXData(std::vector<std::vector<double>> x);
+    void saveData(std::vector<std::vector<double>> y, double* coeffs);
+
     sarspec_usb::SarspecResDevice specDev;
 };

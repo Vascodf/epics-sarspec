@@ -1,6 +1,6 @@
 record(bo, "$(P)$(R)Run")
 {
-    field(PINI,  "1")
+    field(PINI,  "0")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_RUN")
     field(ZNAM, "Stop")
@@ -9,7 +9,7 @@ record(bo, "$(P)$(R)Run")
 
 record(bi, "$(P)$(R)Run_RBV")
 {
-    field(PINI, "1")
+    field(PINI, "0")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_RUN")
     field(ZNAM, "Done")
@@ -82,14 +82,6 @@ record(longout, "$(P)$(R)IntegrationTime")
    field(LOPR, "4")
 }
 
-record(longout, "$(P)$(R)Timeout")
-{
-   field(DTYP, "asynInt32")
-   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_TIMEOUT")
-   field(HOPR, "60000")
-   field(LOPR, "100")
-}
-
 record(bo, "$(P)$(R)ExternalTrigger")
 {
    field(PINI,  "1")
@@ -97,6 +89,15 @@ record(bo, "$(P)$(R)ExternalTrigger")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_EXTERNAL_TRIGGER")
    field(ZNAM, "Internal")
    field(ONAM, "External")
+}
+
+record(bo, "$(P)$(R)Save")
+{
+    field(PINI,  "0")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SARSPEC_SAVE")
+    field(ZNAM, "Don't Save")
+    field(ONAM, "Save")
 }
 
 record(ao, "$(P)$(R)C0")
