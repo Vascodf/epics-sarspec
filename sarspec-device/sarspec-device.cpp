@@ -277,69 +277,50 @@ namespace sarspec_usb {
         unsigned char incomingBufs[nr][8192];
         uint32_t bytesRead;
         timespec instants[nr * 2];
-        timespec start;
         yDataS.clear();
 
         //First acquisition using external trigger
         if (extTrigger) {
-
-            ftdi_tcioflush(ftdi_dev);    
-            usleep(5e2); // wait for flush, external triggering during this time may cause some data to be overwritten
-
-            clock_gettime(CLOCK_MONOTONIC, &start);
-
-            status = ftdi_write_data(ftdi_dev, bufStartScanExt, 5);
-
-            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[0], L << 1);            
-            ftdi_transfer_data_done(tc);
-
+            
             ftdi_tcioflush(ftdi_dev);
 
-            clock_gettime(CLOCK_MONOTONIC, &instants[0]); //in the ext trigger case the time at instant[2] (start of 2nd acquisition)
-                                                          //will always be greater than the time at instant[0] + tinterval
-                                                          //because the device waits for the trigger. This being the case we approximate
-                                                          //the time of triggering to the time after acquiring the first set of data so that
-                                                          //it waits tinterval ms until the 2nd acquisition otherwise it would be immediate 
+            for(int i = 0; i < nr; i++)
+            {
+                clock_gettime(CLOCK_MONOTONIC, &instants[i*2]);
+
+                ftdi_write_data(ftdi_dev, bufStartScanExt, 5);
+
+                tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[i], L << 1);
+                ftdi_transfer_data_done(tc);
+                
+                clock_gettime(CLOCK_MONOTONIC, &instants[i*2+1]);
+
+                ftdi_tcioflush(ftdi_dev);
+            }
+
+
         }
         //First acquisition using internal trigger
         else {
-            
-            ftdi_tcioflush(ftdi_dev);
-            
-            clock_gettime(CLOCK_MONOTONIC, &instants[0]);
-            clock_gettime(CLOCK_MONOTONIC, &start);
 
-            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[0], L << 1);
+            for (int i = 0; i < nr; i++) {
+                
+                ftdi_tcioflush(ftdi_dev);
 
-            status = ftdi_write_data(ftdi_dev, bufStartScan, 1);
-
-            ftdi_transfer_data_done(tc);
-
-            ftdi_tcioflush(ftdi_dev);
-
-            clock_gettime(CLOCK_MONOTONIC, &instants[1]);
-        }
-
-        //Subsequent acquisitions using internal triggers
-        for (int i = 1; i < nr; i++) {
-            
-            ftdi_tcioflush(ftdi_dev);
-
-            clock_gettime(CLOCK_MONOTONIC, &instants[i * 2]);
-
-            while ((double)(timespecDiff(instants[i * 2 - 2], instants[i * 2]))/1e6 < tinterval) {
                 clock_gettime(CLOCK_MONOTONIC, &instants[i * 2]);
+                
+                status = ftdi_write_data(ftdi_dev, bufStartScan, 1);
+
+                tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[i], L << 1);
+                ftdi_transfer_data_done(tc);
+
+                clock_gettime(CLOCK_MONOTONIC, &instants[i * 2 + 1]);
+
+                clock_gettime(CLOCK_MONOTONIC, &instants[i * 2 + 2]);
+                while ((double)(timespecDiff(instants[i * 2], instants[i * 2 + 2]))/1e6 < tinterval) {
+                    clock_gettime(CLOCK_MONOTONIC, &instants[i * 2 + 2]);
+                }
             }
-            
-            tc = ftdi_read_data_submit(ftdi_dev, incomingBufs[i], L << 1);
-
-            status = ftdi_write_data(ftdi_dev, bufStartScan, 1);
-
-            ftdi_transfer_data_done(tc);
-
-            ftdi_tcoflush(ftdi_dev);
-
-            clock_gettime(CLOCK_MONOTONIC, &instants[i * 2 + 1]);
         }
 
         if (tc->size > 0) {
@@ -368,12 +349,12 @@ namespace sarspec_usb {
                     temp.push_back(double(temp1[i]));
                 }
             }
-            temp.push_back((double)(timespecDiff(start, instants[j * 2]))/1e6);
+            temp.push_back((double)(timespecDiff(instants[0], instants[j * 2]))/1e6);
             yDataS.push_back(temp);
         }
 
         for (int i = 1; i < nr; i++) {
-            printf("%u: %g ms, ", i, (double)(timespecDiff(start, instants[i * 2]))/1e6);
+            printf("%u: %g ms, ", i, (double)(timespecDiff(instants[0], instants[i * 2]))/1e6);
         }
         printf("\n");
         for (int i = 1; i < nr; i++) {
